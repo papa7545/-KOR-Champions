@@ -46,11 +46,6 @@ namespace Kor_AIO
             Game.OnGameProcessPacket += Game_OnGameProcessPacket;
         }
 
-        public static bool packets()
-        {
-            //return menu.Item("packet", true).GetValue<bool>();
-            return true;
-        }
 
         #region Virtual Event
         public virtual void Game_OnGameUpdate(EventArgs args)

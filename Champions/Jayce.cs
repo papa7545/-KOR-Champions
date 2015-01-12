@@ -20,6 +20,14 @@ namespace Kor_AIO.Champions
 
         public static bool isCannon = true;
 
+        private readonly float[] _cannonQcd = { 8, 8, 8, 8, 8 };
+        private readonly float[] _cannonWcd = { 14, 12, 10, 8, 6 };
+        private readonly float[] _cannonEcd = { 16, 16, 16, 16, 16 };
+
+        private readonly float[] _hammerQcd = { 16, 14, 12, 10, 8 };
+        private readonly float[] _hammerWcd = { 10, 10, 10, 10, 10 };
+        private readonly float[] _hammerEcd = { 14, 13, 12, 11, 10 };
+
         private void SetSpells()
         {
             Q = new Spell(SpellSlot.Q, 1050);
@@ -82,6 +90,11 @@ namespace Kor_AIO.Champions
             isCannon = Player.Spellbook.GetSpell(SpellSlot.Q).SData.Name.Contains("jayceshockblast");
         }
 
+        public static bool packets()
+        {
+            return ConfigManager.championMenu.Item("usePacket", true).GetValue<bool>();
+        }
+
         public override void Game_OnGameUpdate(EventArgs args)
         {
             if (Player.IsDead) 
@@ -91,7 +104,7 @@ namespace Kor_AIO.Champions
 
             if (OrbwalkerMode == Orbwalking.OrbwalkingMode.Combo)
             {
-                shootQE(Game.CursorPos);
+                
             }
 
             if (OrbwalkerMode == Orbwalking.OrbwalkingMode.Mixed)
@@ -110,14 +123,14 @@ namespace Kor_AIO.Champions
             }
         }
 
-        /*
         public override void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
-            if (!ConfigManager.championMenu.Item("UseGap", true).GetValue<bool>()) return;
+            if (!ConfigManager.championMenu.Item("UseGap", true).GetValue<bool>())
+                return;
 
             if (_hamEcd == 0 && gapcloser.Sender.IsValidTarget(E2.Range + gapcloser.Sender.BoundingRadius))
             {
-                if (!_hammerTime && R.IsReady())
+                if (isCannon && R.IsReady())
                     R.Cast();
 
                 if (E2.IsReady())
@@ -131,7 +144,7 @@ namespace Kor_AIO.Champions
 
             if (unit != null && Player.Distance(unit) < Q2.Range + unit.BoundingRadius && _hamQcd == 0 && _hamEcd == 0)
             {
-                if (iscannon && R.IsReady())
+                if (isCannon && R.IsReady())
                     R.Cast();
 
                 if (Q2.IsReady())
@@ -140,14 +153,16 @@ namespace Kor_AIO.Champions
 
             if (unit != null && (Player.Distance(unit) < E2.Range + unit.BoundingRadius && _hamEcd == 0))
             {
-                if (iscannon && R.IsReady())
+                if (isCannon && R.IsReady())
                     R.Cast();
 
                 if (E2.IsReady())
                     E2.Cast(unit, packets());
             }
         }
-        */
+
+#region ShootQE
+
         public static Vector2 getParalelVec(Vector3 pos)
         {
             if (ConfigManager.championMenu.Item("UseParallelE", true).GetValue<bool>())
@@ -172,12 +187,12 @@ namespace Kor_AIO.Champions
         {
             try
             {
+                if (!E.IsReady() || !Q.IsReady() || !isCannon)
+                    return false;
+
                 if (!isCannon && R.IsReady())
                     R.Cast();
 
-                if (!E.IsReady() || !Q.IsReady() || !isCannon)
-                    return false;
-                
                 if (ConfigManager.championMenu.Item("usePacket", true).GetValue<bool>())
                 {
                     Q.Cast(pos.To2D(), packets());
@@ -200,5 +215,50 @@ namespace Kor_AIO.Champions
             }
             return true;
         }
+
+#endregion
+
+        private float _canQcd, _canWcd, _canEcd;
+        private float _hamQcd, _hamWcd, _hamEcd;
+        private float _canQcdRem, _canWcdRem, _canEcdRem;
+        private float _hamQcdRem, _hamWcdRem, _hamEcdRem;
+
+        private void ProcessCoolDowns()
+        {
+            _canQcd = ((_canQcdRem - Game.Time) > 0) ? (_canQcdRem - Game.Time) : 0;
+            _canWcd = ((_canWcdRem - Game.Time) > 0) ? (_canWcdRem - Game.Time) : 0;
+            _canEcd = ((_canEcdRem - Game.Time) > 0) ? (_canEcdRem - Game.Time) : 0;
+            _hamQcd = ((_hamQcdRem - Game.Time) > 0) ? (_hamQcdRem - Game.Time) : 0;
+            _hamWcd = ((_hamWcdRem - Game.Time) > 0) ? (_hamWcdRem - Game.Time) : 0;
+            _hamEcd = ((_hamEcdRem - Game.Time) > 0) ? (_hamEcdRem - Game.Time) : 0;
+        }
+
+        private float CalculateCD(float time)
+        {
+            return time + (time * Player.PercentCooldownMod);
+        }
+
+        private void GetCooldowns(GameObjectProcessSpellCastEventArgs spell)
+        {
+            if (isCannon)
+            {
+                if (spell.SData.Name == "jayceshockblast")
+                    _canQcdRem = Game.Time + CalculateCD(_cannonQcd[Q.Level - 1]);
+                if (spell.SData.Name == "jaycehypercharge")
+                    _canWcdRem = Game.Time + CalculateCD(_cannonWcd[W.Level - 1]);
+                if (spell.SData.Name == "jayceaccelerationgate")
+                    _canEcdRem = Game.Time + CalculateCD(_cannonEcd[E.Level - 1]);
+            }
+            else
+            {
+                if (spell.SData.Name == "JayceToTheSkies")
+                    _hamQcdRem = Game.Time + CalculateCD(_hammerQcd[Q.Level - 1]);
+                if (spell.SData.Name == "JayceStaticField")
+                    _hamWcdRem = Game.Time + CalculateCD(_hammerWcd[W.Level - 1]);
+                if (spell.SData.Name == "JayceThunderingBlow")
+                    _hamEcdRem = Game.Time + CalculateCD(_hammerEcd[E.Level - 1]);
+            }
+        }
+
     }
 }
