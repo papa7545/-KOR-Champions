@@ -29,10 +29,8 @@ namespace Kor_AIO.Champions
             R = new Spell(SpellSlot.R, 450);
 
             Q.SetSkillshot(0, 70, 1800f, true, SkillshotType.SkillshotLine);
-
-            Game.OnGameUpdate += OnGameUpdate;
         }
-        public static void OnGameUpdate(EventArgs args)
+        public override void Game_OnGameUpdate(EventArgs args)
         {
             if (OrbwalkerMode == Orbwalking.OrbwalkingMode.Combo)
                 combo();

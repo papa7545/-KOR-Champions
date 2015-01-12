@@ -76,13 +76,10 @@ namespace Kor_AIO.Champions
             menu_notifier.AddItem(new MenuItem("TF_notifier", "UltNotifier").SetValue(true));
             menu_notifier.AddItem(new MenuItem("TF_notifier_HP", "Notice On HP(%)").SetValue(new Slider(10, 0, 100)));
 
-
-
-            Game.OnGameUpdate += Update;
             Drawing.OnEndScene += OnDraw_EndScene;
         }
 
-        public static void Update(EventArgs args)
+        public override void Game_OnGameUpdate(EventArgs args)
         {
 
                 #region get info

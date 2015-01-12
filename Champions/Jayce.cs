@@ -45,9 +45,6 @@ namespace Kor_AIO.Champions
             //Keys
             var key = new Menu("Keys", "Keys");
             {
-                key.AddItem(new MenuItem("ComboActive", "Combo", true).SetValue(new KeyBind("Space".ToCharArray()[0], KeyBindType.Press)));
-                key.AddItem(new MenuItem("HarassActive", "Harass", true).SetValue(new KeyBind("C".ToCharArray()[0], KeyBindType.Press)));
-                key.AddItem(new MenuItem("HarassActiveT", "Harass (toggle)!", true).SetValue(new KeyBind("Y".ToCharArray()[0], KeyBindType.Toggle)));
                 key.AddItem(new MenuItem("shootQEMouse", "Shoot QE Mouse", true).SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
                 ConfigManager.championMenu.AddSubMenu(key);
             }
@@ -88,7 +85,7 @@ namespace Kor_AIO.Champions
             }
         }
 
-        public static void Game_OnGameUpdate(EventArgs args)
+        public override void Game_OnGameUpdate(EventArgs args)
         {
             if (Player.IsDead) 
                 return;
@@ -149,7 +146,7 @@ namespace Kor_AIO.Champions
         */
         public static Vector2 getParalelVec(Vector3 pos)
         {
-            if (ConfigManager.championMenu.SubMenu("Misc").Item("UseParallelE").GetValue<bool>())
+            if (ConfigManager.championMenu.Item("UseParallelE", true).GetValue<bool>())
             {
                 Random rnd = new Random();
                 int neg = rnd.Next(0, 1);
@@ -177,21 +174,20 @@ namespace Kor_AIO.Champions
                 if (!E.IsReady() || !Q.IsReady() || !isCannon)
                     return false;
                 
-                //if (ConfigManager.championMenu.Item("packets").GetValue<bool>())
+                if (ConfigManager.championMenu.Item("usePacket", true).GetValue<bool>())
                 {
                     Q.Cast(pos.To2D(), packets());
                     E.Cast(getParalelVec(pos), packets());
                 }
-                   
-                //else
-                /*
+                
+                else
                 {
                     Vector3 bPos = Player.ServerPosition - Vector3.Normalize(pos - Player.ServerPosition) * 50;
 
                     Player.IssueOrder(GameObjectOrder.MoveTo, bPos);
-                    Q.Cast(pos, packets());
-                    E.Cast(getParalelVec(pos), packets());
-                }*/ 
+                    Q.Cast(pos);
+                    E.Cast(getParalelVec(pos));
+                }
 
             }
             catch (Exception ex)

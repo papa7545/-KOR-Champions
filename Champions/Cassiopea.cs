@@ -31,10 +31,9 @@ namespace Kor_AIO.Champions
 
             Q.SetSkillshot(1f, 75f, float.MaxValue, false, SkillshotType.SkillshotCircle);
             W.SetSkillshot(0.6f, 200f, float.MaxValue, false, SkillshotType.SkillshotCircle);
-
-            Game.OnGameUpdate += OnGameUpdate;
         }
-        public static void OnGameUpdate(EventArgs args)
+
+        public override void Game_OnGameUpdate(EventArgs args)
         {
             if (OrbwalkerMode == Orbwalking.OrbwalkingMode.Combo)
                 combo();

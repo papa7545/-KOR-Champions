@@ -33,8 +33,9 @@ namespace Kor_AIO
             ConfigManager.championMenu.SubMenu("Orbwalker").SubMenu("Misc").AddItem(new MenuItem("disAttack", "Disable Attack")).SetValue(false);
             ConfigManager.LoadMenu();
 
-            Game.OnGameUpdate += Game_OnGameUpdate;
+            
             Game.OnGameUpdate += Orbwalker_Setting;
+            Game.OnGameUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
             Interrupter.OnPossibleToInterrupt += Interrupter_OnPosibleToInterrupt;
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
