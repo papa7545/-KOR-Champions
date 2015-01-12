@@ -36,16 +36,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="LeagueSharp">
-      <HintPath>C:\LeagueSharp\\System\LeagueSharp.dll</HintPath>
+      <HintPath>C:\Users\Administrator\Desktop\ee\\System\LeagueSharp.dll</HintPath>
     </Reference>
     <Reference Include="LeagueSharp.Common">
-      <HintPath>C:\LeagueSharp\\System\LeagueSharp.Common.dll</HintPath>
+      <HintPath>C:\Users\Administrator\Desktop\ee\\System\LeagueSharp.Common.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX">
-      <HintPath>C:\LeagueSharp\\System\SharpDX.dll</HintPath>
+      <HintPath>C:\Users\Administrator\Desktop\ee\\System\SharpDX.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.Direct3D9">
-      <HintPath>C:\LeagueSharp\\System\SharpDX.Direct3D9.dll</HintPath>
+      <HintPath>C:\Users\Administrator\Desktop\ee\\System\SharpDX.Direct3D9.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -57,7 +57,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Champions\Jayce.cs" />
+    <Compile Include="Champions\Blitzcrank.cs" />
+    <Compile Include="Champions\Cassiopea.cs" />
+    <Compile Include="Champions\Jayce.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Champions\TwistedFate.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Champions\Xerath.cs" />
     <Compile Include="ConfigManager.cs" />
     <Compile Include="Kor_AIO_Base.cs" />
     <Compile Include="Program.cs" />

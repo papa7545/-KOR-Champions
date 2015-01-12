@@ -112,7 +112,7 @@ namespace Kor_AIO.Champions
 
         public override void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
-            if (!menu.Item("UseGap", true).GetValue<bool>()) return;
+            if (!ConfigManager.championMenu.Item("UseGap", true).GetValue<bool>()) return;
 
             if (_hamEcd == 0 && gapcloser.Sender.IsValidTarget(E2.Range + gapcloser.Sender.BoundingRadius))
             {
@@ -126,7 +126,7 @@ namespace Kor_AIO.Champions
 
         public override void Interrupter_OnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
         {
-            if (!menu.Item("UseInt", true).GetValue<bool>()) return;
+            if (!ConfigManager.championMenu.Item("UseInt", true).GetValue<bool>()) return;
 
             if (unit != null && Player.Distance(unit) < Q2.Range + unit.BoundingRadius && _hamQcd == 0 && _hamEcd == 0)
             {

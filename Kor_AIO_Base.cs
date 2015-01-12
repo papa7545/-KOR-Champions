@@ -1,5 +1,6 @@
 ﻿using LeagueSharp;
 using LeagueSharp.Common;
+using SharpDX;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,8 @@ namespace Kor_AIO
 
         public static Spell P, Q, Q2, QCharged, W, W2, E, E2, R, R2;
 
+
+
         public Orbwalking.OrbwalkingMode OrbwalkerMode
         {
             get { return Orbwalker.ActiveMode; }
@@ -30,6 +33,7 @@ namespace Kor_AIO
 
             ConfigManager.LoadMenu();
 
+
             Game.OnGameUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
             Interrupter.OnPossibleToInterrupt += Interrupter_OnPosibleToInterrupt;
@@ -41,9 +45,10 @@ namespace Kor_AIO
             Game.OnGameProcessPacket += Game_OnGameProcessPacket;
         }
 
-        public bool packets()
+        public static bool packets()
         {
-            return menu.Item("packet", true).GetValue<bool>();
+            //return menu.Item("packet", true).GetValue<bool>();
+            return true;
         }
 
         public virtual void Game_OnGameUpdate(EventArgs args)
@@ -81,5 +86,45 @@ namespace Kor_AIO
         public virtual void Game_OnGameProcessPacket(GamePacketEventArgs args)
         {
         }
+
+        #region Cast
+        public static void Cast(Spell spell, Obj_AI_Base target, HitChance hitChance = HitChance.VeryHigh, bool aoe = false)
+        {
+            if (spell.IsReady())
+            {
+                spell.Cast(target, false, aoe);
+            }
+        }
+        public static void Cast(Spell spell, Vector3 position, HitChance hitChance = HitChance.VeryHigh, bool aoe = false)
+        {
+            if (spell.IsReady())
+            {
+                spell.Cast(position);
+            }
+        }
+
+        public static void Cast(Spell spell, TargetSelector.DamageType damageType)
+        {
+            if (spell.IsReady())
+            {
+                Obj_AI_Hero target = null;
+                if (Player.ChampionName == "TwistedFate" && spell.Slot == SpellSlot.Q)
+                    target = TargetSelector.GetTarget(1200, damageType);
+                else
+                    target = TargetSelector.GetTarget(spell.Range, damageType);
+
+                if (target == null) return;
+
+                spell.Cast(target);
+            }
+        }
+
+        public static void Cast(Spell spell)
+        {
+            if (spell.IsReady())
+                spell.Cast();
+        }
+        #endregion
+
     }
 }
