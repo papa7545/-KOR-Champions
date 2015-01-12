@@ -16,6 +16,8 @@ namespace JeonChampions
 {
     class Jproject_base:Program
     {
+
+
         public static string menuName = "Jeon"+ObjectManager.Player.ChampionName;
         public static Menu baseMenu = new Menu(menuName, menuName, true);
 

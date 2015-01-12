@@ -57,9 +57,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="TwistedFate.cs" />
-    <Compile Include="Xerath.cs" />
-    <Compile Include="Cassiopea.cs" />
+    <Compile Include="Champion\BlitzCrank.cs" />
+    <Compile Include="Champion\Cassiopea.cs" />
+    <Compile Include="Champion\TwistedFate.cs" />
+    <Compile Include="Champion\Xerath.cs" />
     <Compile Include="Jproject_base.cs" />
     <Compile Include="Program.cs">
       <SubType>
