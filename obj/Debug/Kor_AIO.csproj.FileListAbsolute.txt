@@ -1,1 +1,2 @@
 G:\Kor_AIO\Kor_AIO\bin\Debug\Kor_AIO.exe.config
+G:\-KOR-Champions\bin\Debug\Kor_AIO.exe.config
