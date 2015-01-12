@@ -149,7 +149,7 @@ namespace Kor_AIO.Champions
         */
         public static Vector2 getParalelVec(Vector3 pos)
         {
-            if (ConfigManager.championMenu.Item("UseParallelE", true).GetValue<bool>())
+            if (ConfigManager.championMenu.SubMenu("Misc").Item("UseParallelE").GetValue<bool>())
             {
                 Random rnd = new Random();
                 int neg = rnd.Next(0, 1);

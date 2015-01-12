@@ -36,17 +36,15 @@ namespace Kor_AIO.Champions
             E.SetSkillshot(0, 60, 1600f, true, SkillshotType.SkillshotLine);
             R.SetSkillshot(0.7f, 120f, float.MaxValue, false, SkillshotType.SkillshotCircle);
 
-            ConfigManager.set_menu();
             Game.OnGameUpdate += OnGameUpdate;
         }
 
         public static void OnGameUpdate(EventArgs args)
         {
-
-            if (ConfigManager.championMenu.Item(ConfigManager.m_Items.COMBO_KEY).GetValue<KeyBind>().Active)
+            if (OrbwalkerMode == Orbwalking.OrbwalkingMode.Combo)
                 combo();
 
-            if (ConfigManager.championMenu.Item(ConfigManager.m_Items.HARASS_KEY).GetValue<KeyBind>().Active)
+            if (OrbwalkerMode == Orbwalking.OrbwalkingMode.Mixed)
                 harass();
         }
 
