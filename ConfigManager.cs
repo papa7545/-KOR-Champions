@@ -12,32 +12,26 @@ namespace Kor_AIO
 {
     internal class ConfigManager
     {
-        public static string menuName = "[Kor AIO] " + ObjectManager.Player.ChampionName;
-        public static Menu baseMenu = new Menu(menuName, menuName, true);
-        public static Orbwalking.Orbwalker Orbwalker;
-
-        public static Orbwalking.OrbwalkingMode OrbwalkerMode
-        {
-            get { return Orbwalker.ActiveMode; }
-        }
+        public static string championMenuName = "[Kor AIO] " + ObjectManager.Player.ChampionName;
+        public static string UtilityMenuName = "[Kor AIO] Utility";
+        public static Menu championMenu = new Menu(championMenuName, championMenuName, true);
+        public static Menu utilityMenu = new Menu(UtilityMenuName, UtilityMenuName, true);
 
         public static void LoadMenu()
         {
-            baseMenu.AddToMainMenu();
-            var tsMenu = new Menu("TargetSelector", "TargetSelector"); //TargetSelector Menu
-            baseMenu.AddSubMenu(tsMenu);
-            TargetSelector.AddToMenu(tsMenu);
+            utilityMenu.AddToMainMenu();
+            championMenu.AddToMainMenu();
 
-            var orbwalkMenu = new Menu("Orbwalker", "Orbwalker");
-            Orbwalker = new Orbwalking.Orbwalker(orbwalkMenu);
-            baseMenu.AddSubMenu(orbwalkMenu);
+            var tsMenu = new Menu("TargetSelector", "TargetSelector"); //TargetSelector Menu
+            championMenu.AddSubMenu(tsMenu);
+            TargetSelector.AddToMenu(tsMenu);
 
             var potionMenu = new Menu("Potion Control", "Potion");
             new PotionManager().Load(potionMenu);
-            baseMenu.AddSubMenu(potionMenu);
+            utilityMenu.AddSubMenu(potionMenu);
 
             var DrawMenu = new Menu("Drawings", "Draw");
-            baseMenu.AddSubMenu(DrawMenu);
+            championMenu.AddSubMenu(DrawMenu);
 
             DrawMenu.AddItem(new MenuItem("Draw Q", "draw_Qrange").SetValue(new Circle(true, Color.Red)));
             DrawMenu.AddItem(new MenuItem("Draw W", "draw_Wrange").SetValue(new Circle(true, Color.Blue)));

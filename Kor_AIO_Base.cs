@@ -17,8 +17,6 @@ namespace Kor_AIO
 
         public static Spell P, Q, Q2, QCharged, W, W2, E, E2, R, R2;
 
-
-
         public Orbwalking.OrbwalkingMode OrbwalkerMode
         {
             get { return Orbwalker.ActiveMode; }
@@ -26,11 +24,11 @@ namespace Kor_AIO
 
         public Kor_AIO_Base()
         {
-            ConfigManager.LoadMenu();
-
             var orbwalkMenu = new Menu("Orbwalker", "Orbwalker");
             Orbwalker = new Orbwalking.Orbwalker(orbwalkMenu);
-            ConfigManager.baseMenu.AddSubMenu(orbwalkMenu);
+            ConfigManager.championMenu.AddSubMenu(orbwalkMenu);
+
+            ConfigManager.LoadMenu();
 
             Game.OnGameUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
@@ -43,6 +41,10 @@ namespace Kor_AIO
             Game.OnGameProcessPacket += Game_OnGameProcessPacket;
         }
 
+        public bool packets()
+        {
+            return menu.Item("packet", true).GetValue<bool>();
+        }
 
         public virtual void Game_OnGameUpdate(EventArgs args)
         {
