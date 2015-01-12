@@ -57,8 +57,6 @@ namespace Kor_AIO.Champions
 
             Q.SetSkillshot(0.1f, 60, 1450, false, SkillshotType.SkillshotLine);
 
-
-
             ConfigManager.championMenu.AddSubMenu(menu_q);
             menu_q.AddItem(new MenuItem("TF_q_enable", "Enable").SetValue(true));
             menu_q.AddItem(new MenuItem("TF_q_key", "Key:").SetValue(new KeyBind(32, KeyBindType.Press)));

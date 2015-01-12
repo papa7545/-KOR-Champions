@@ -37,18 +37,9 @@ namespace Kor_AIO.Champions
             E.SetSkillshot(0.1f, 120, float.MaxValue, false, SkillshotType.SkillshotCircle);
             E2.SetTargetted(.25f, float.MaxValue);
         }
-        
-        private readonly SpellDataInst _qdata = ObjectManager.Player.Spellbook.GetSpell(SpellSlot.Q);
 
         private void LoadMenu()
         {
-            //Keys
-            var key = new Menu("Keys", "Keys");
-            {
-                key.AddItem(new MenuItem("shootQEMouse", "Shoot QE Mouse", true).SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
-                ConfigManager.championMenu.AddSubMenu(key);
-            }
-
             //Combo menu:
             var combo = new Menu("Combo", "Combo");
             {
@@ -74,21 +65,29 @@ namespace Kor_AIO.Champions
             //Misc Menu:
             var misc = new Menu("Misc", "Misc");
             {
+                misc.AddItem(new MenuItem("shootQE", "Shoot QE", true).SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
                 misc.AddItem(new MenuItem("UseParallelE", "Use Parallel E", true).SetValue(true));
                 misc.AddItem(new MenuItem("eAway", "Gate Distance", true).SetValue(new Slider(20, 3, 60)));
                 misc.AddItem(new MenuItem("UseInterrupt", "Use E to Interrupt", true).SetValue(true));
                 misc.AddItem(new MenuItem("UseGapCloser", "Use E for GapCloser", true).SetValue(true));
                 misc.AddItem(new MenuItem("UseQAlways", "Use Q When E onCD", true).SetValue(true));
                 misc.AddItem(new MenuItem("autoE", "EPushInCombo HP < %", true).SetValue(new Slider(20)));
-                misc.AddItem(new MenuItem("smartKS", "Smart KS", true).SetValue(true));
+                misc.AddItem(new MenuItem("usePacket", "Use Packet", true).SetValue(true));
                 ConfigManager.championMenu.AddSubMenu(misc);
             }
+        }
+
+        public static void checkForm()
+        {
+            isCannon = Player.Spellbook.GetSpell(SpellSlot.Q).SData.Name.Contains("jayceshockblast");
         }
 
         public override void Game_OnGameUpdate(EventArgs args)
         {
             if (Player.IsDead) 
                 return;
+
+            checkForm();
 
             if (OrbwalkerMode == Orbwalking.OrbwalkingMode.Combo)
             {
@@ -98,6 +97,11 @@ namespace Kor_AIO.Champions
             if (OrbwalkerMode == Orbwalking.OrbwalkingMode.Mixed)
             {
 
+            }
+
+            if (ConfigManager.championMenu.Item("shootQE", true).GetValue<KeyBind>().Active)
+            {
+                shootQE(Game.CursorPos);
             }
 
             if (OrbwalkerMode == Orbwalking.OrbwalkingMode.LaneClear)
@@ -169,7 +173,7 @@ namespace Kor_AIO.Champions
             try
             {
                 if (!isCannon && R.IsReady())
-                    R2.Cast();
+                    R.Cast();
 
                 if (!E.IsReady() || !Q.IsReady() || !isCannon)
                     return false;
