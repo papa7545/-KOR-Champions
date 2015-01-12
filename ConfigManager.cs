@@ -10,13 +10,13 @@ using System.Threading.Tasks;
 
 namespace Kor_AIO
 {
-    class ConfigManager
+    internal class ConfigManager
     {
-        public static string menuName = "[Kor] " + ObjectManager.Player.ChampionName;
+        public static string menuName = "[Kor AIO] " + ObjectManager.Player.ChampionName;
         public static Menu baseMenu = new Menu(menuName, menuName, true);
         public static Orbwalking.Orbwalker Orbwalker;
-        
-        public static void Create_Menu()
+
+        public static void LoadMenu()
         {
             baseMenu.AddToMainMenu();
             var tsMenu = new Menu("TargetSelector", "TargetSelector"); //TargetSelector Menu

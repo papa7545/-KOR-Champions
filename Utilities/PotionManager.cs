@@ -12,7 +12,7 @@ namespace Kor_AIO.Utilities
     {
         private static Menu _menu;
 
-        public override void Load(Menu config)
+        public void Load(Menu config)
         {
             config.AddItem(new MenuItem("useHP", "Use Health Pot").SetValue(true));
             config.AddItem(new MenuItem("useHPPercent", "Health %").SetValue(new Slider(35, 1)));

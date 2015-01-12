@@ -17,20 +17,22 @@ namespace Kor_AIO
 
         private static void Game_OnGameLoad(EventArgs args)
         {
+            PrintChat("Loading...");
+
             var plugin = Type.GetType("Kor_AIO.Champions." + ObjectManager.Player.ChampionName);
 
             if (plugin == null)
             {
-                Program.PrintChat(ObjectManager.Player.ChampionName + " is not supported.");
+                PrintChat(ObjectManager.Player.ChampionName + " is not supported.");
                 return;
             }
 
             Activator.CreateInstance(plugin);
         }
 
-        private static void PrintChat(string msg)
+        public static void PrintChat(string msg)
         {
-            Game.PrintChat("<font color='#3492EB'>[Kor] : </font> <font color='#FFFFFF'>" + msg + "</font>");
+            Game.PrintChat("<font color='#3492EB'>[Kor AIO] : </font><font color='#FFFFFF'>" + msg + "</font>");
         }
     }
 }
