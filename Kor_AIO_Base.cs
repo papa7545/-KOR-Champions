@@ -10,14 +10,14 @@ namespace Kor_AIO
 {
     internal class Kor_AIO_Base
     {
-        public Orbwalking.Orbwalker Orbwalker;
-
-        public Obj_AI_Hero Player = ObjectManager.Player;
-        public Obj_AI_Hero SelectedTarget = null;
-
+        public static Obj_AI_Hero Player = ObjectManager.Player;
+        public static Obj_AI_Hero SelectedTarget = null;
+        public static Orbwalking.Orbwalker Orbwalker;
         public List<Spell> SpellList = new List<Spell>();
 
-        public Spell P, Q, Q2, QCharged, W, W2, E, E2, R, R2;
+        public static Spell P, Q, Q2, QCharged, W, W2, E, E2, R, R2;
+
+
 
         public Orbwalking.OrbwalkingMode OrbwalkerMode
         {
@@ -27,6 +27,10 @@ namespace Kor_AIO
         public Kor_AIO_Base()
         {
             ConfigManager.LoadMenu();
+
+            var orbwalkMenu = new Menu("Orbwalker", "Orbwalker");
+            Orbwalker = new Orbwalking.Orbwalker(orbwalkMenu);
+            ConfigManager.baseMenu.AddSubMenu(orbwalkMenu);
 
             Game.OnGameUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Drawing_OnDraw;

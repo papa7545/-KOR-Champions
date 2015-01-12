@@ -93,38 +93,68 @@ namespace Kor_AIO.Champions
         public override void Game_OnGameUpdate(EventArgs args)
         {
             //check if player is dead
-            if (Player.IsDead) return;
+            if (Player.IsDead) 
+                return;
 
             _hammerTime = !_qdata.Name.Contains("jayceshockblast");
 
             if (OrbwalkerMode == Orbwalking.OrbwalkingMode.Combo)
-                    CastQCannonMouse();
+            {
+                Program.PrintChat("Combo");
+                shootQE(Game.CursorPos);
+            }
+
         }
 
 
-        private void CastQCannonMouse()
+        public static Vector2 getParalelVec(Vector3 pos)
         {
-            Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
-
-            if (_hammerTime && !R.IsReady())
-                return;
-
-            if (_hammerTime && R.IsReady())
+            if (ConfigManager.baseMenu.Item("parlelE").GetValue<bool>())
             {
-                R.Cast();
-                return;
+                Random rnd = new Random();
+                int neg = rnd.Next(0, 1);
+                int away = ConfigManager.baseMenu.Item("eAway").GetValue<Slider>().Value;
+                away = (neg == 1) ? away : -away;
+                var v2 = Vector3.Normalize(pos - Player.ServerPosition) * away;
+                var bom = new Vector2(v2.Y, -v2.X);
+                return Player.ServerPosition.To2D() + bom;
             }
-
-            if (!_hammerTime)
+            else
             {
-                var gateDis = ConfigManager.baseMenu.Item("gatePlace", true).GetValue<Slider>().Value;
-                var gateVector = Player.ServerPosition + Vector3.Normalize(Game.CursorPos - Player.ServerPosition) * gateDis;
+                var v2 = Vector3.Normalize(pos - Player.ServerPosition) * 300;
+                var bom = new Vector2(v2.X, v2.Y);
+                return Player.ServerPosition.To2D() + bom;
+            }
+        }
 
-                if (E.IsReady() && Q.IsReady())
+        public static bool shootQE(Vector3 pos)
+        {
+            try
+            {
+                if (isHammer && R.IsReady())
+                    R2.Cast();
+                if (!E.IsReady() || !Q.IsReady() || isHammer)
+                    return false;
+
+                if (ConfigManager.baseMenu.Item("packets").GetValue<bool>())
                 {
-                    E.Cast(gateVector, true);
-                    Q.Cast(Game.CursorPos, true);
+                    Q.Cast(pos.To2D());
+                    E.Cast(getParalelVec(pos));
                 }
+                else
+                {
+                    Vector3 bPos = Player.ServerPosition - Vector3.Normalize(pos - Player.ServerPosition) * 50;
+
+                    Player.IssueOrder(GameObjectOrder.MoveTo, bPos);
+                    Q.Cast(pos);
+
+                    E.Cast(getParalelVec(pos));
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
             }
         }
     }

@@ -16,6 +16,11 @@ namespace Kor_AIO
         public static Menu baseMenu = new Menu(menuName, menuName, true);
         public static Orbwalking.Orbwalker Orbwalker;
 
+        public static Orbwalking.OrbwalkingMode OrbwalkerMode
+        {
+            get { return Orbwalker.ActiveMode; }
+        }
+
         public static void LoadMenu()
         {
             baseMenu.AddToMainMenu();
