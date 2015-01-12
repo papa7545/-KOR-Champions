@@ -18,9 +18,7 @@ namespace Kor_AIO
 
         public static Spell P, Q, Q2, QCharged, W, W2, E, E2, R, R2;
 
-
-
-        public Orbwalking.OrbwalkingMode OrbwalkerMode
+        public static Orbwalking.OrbwalkingMode OrbwalkerMode
         {
             get { return Orbwalker.ActiveMode; }
         }
@@ -31,10 +29,12 @@ namespace Kor_AIO
             Orbwalker = new Orbwalking.Orbwalker(orbwalkMenu);
             ConfigManager.championMenu.AddSubMenu(orbwalkMenu);
 
+            ConfigManager.championMenu.SubMenu("Orbwalker").SubMenu("Misc").AddItem(new MenuItem("disMovement", "Disable Movement")).SetValue(false);
+            ConfigManager.championMenu.SubMenu("Orbwalker").SubMenu("Misc").AddItem(new MenuItem("disAttack", "Disable Attack")).SetValue(false);
             ConfigManager.LoadMenu();
 
-
             Game.OnGameUpdate += Game_OnGameUpdate;
+            Game.OnGameUpdate += Orbwalker_Setting;
             Drawing.OnDraw += Drawing_OnDraw;
             Interrupter.OnPossibleToInterrupt += Interrupter_OnPosibleToInterrupt;
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
@@ -51,8 +51,30 @@ namespace Kor_AIO
             return true;
         }
 
+        #region Virtual Event
         public virtual void Game_OnGameUpdate(EventArgs args)
         {
+        }
+
+        public virtual void Orbwalker_Setting(EventArgs args)
+        {
+            if (ConfigManager.championMenu.SubMenu("Orbwalker").SubMenu("Misc").Item("disMovement").GetValue<bool>())
+            {
+                Orbwalker.SetMovement(false);
+            }
+            else
+            {
+                Orbwalker.SetMovement(true);
+            }
+
+            if (ConfigManager.championMenu.SubMenu("Orbwalker").SubMenu("Misc").Item("disAttack").GetValue<bool>())
+            {
+                Orbwalker.SetAttack(false);
+            }
+            else
+            {
+                Orbwalker.SetAttack(true);
+            }
         }
 
         public virtual void Drawing_OnDraw(EventArgs args)
@@ -86,6 +108,7 @@ namespace Kor_AIO
         public virtual void Game_OnGameProcessPacket(GamePacketEventArgs args)
         {
         }
+        #endregion
 
         #region Cast
         public static void Cast(Spell spell, Obj_AI_Base target, HitChance hitChance = HitChance.VeryHigh, bool aoe = false)

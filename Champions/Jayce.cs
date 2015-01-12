@@ -18,7 +18,7 @@ namespace Kor_AIO.Champions
             SetSpells();
         }
 
-        public static bool isCannon = false;
+        public static bool isCannon = true;
 
         private void SetSpells()
         {
@@ -68,8 +68,8 @@ namespace Kor_AIO.Champions
             //Harass menu:
             var harass = new Menu("Harass", "Harass");
             {
-                harass.AddItem(new MenuItem("HarassUseQ", "Use Q", true).SetValue(true));
-                harass.AddItem(new MenuItem("HarassUseW", "Use W", true).SetValue(true));
+                harass.AddItem(new MenuItem("HarassUseQ", "Use Cannon Q", true).SetValue(true));
+                harass.AddItem(new MenuItem("HarassUseW", "Use Cannon W", true).SetValue(true));
                 harass.AddItem(new MenuItem("manaH", "Mana > %", true).SetValue(new Slider(40)));
                 ConfigManager.championMenu.AddSubMenu(harass);
             }
@@ -77,10 +77,10 @@ namespace Kor_AIO.Champions
             //Misc Menu:
             var misc = new Menu("Misc", "Misc");
             {
-                misc.AddItem(new MenuItem("UseInt", "Use E to Interrupt", true).SetValue(true));
-                misc.AddItem(new MenuItem("UseGap", "Use E for GapCloser", true).SetValue(true));
-                misc.AddItem(new MenuItem("forceGate", "Force Gate After Q", true).SetValue(false));
-                misc.AddItem(new MenuItem("gatePlace", "Gate Distance", true).SetValue(new Slider(300, 50, 600)));
+                misc.AddItem(new MenuItem("UseParallelE", "Use Parallel E", true).SetValue(true));
+                misc.AddItem(new MenuItem("eAway", "Gate Distance", true).SetValue(new Slider(20, 3, 60)));
+                misc.AddItem(new MenuItem("UseInterrupt", "Use E to Interrupt", true).SetValue(true));
+                misc.AddItem(new MenuItem("UseGapCloser", "Use E for GapCloser", true).SetValue(true));
                 misc.AddItem(new MenuItem("UseQAlways", "Use Q When E onCD", true).SetValue(true));
                 misc.AddItem(new MenuItem("autoE", "EPushInCombo HP < %", true).SetValue(new Slider(20)));
                 misc.AddItem(new MenuItem("smartKS", "Smart KS", true).SetValue(true));
@@ -88,14 +88,14 @@ namespace Kor_AIO.Champions
             }
         }
 
-        public override void Game_OnGameUpdate(EventArgs args)
+        public static void Game_OnGameUpdate(EventArgs args)
         {
             if (Player.IsDead) 
                 return;
 
             if (OrbwalkerMode == Orbwalking.OrbwalkingMode.Combo)
             {
-
+                shootQE(Game.CursorPos);
             }
 
             if (OrbwalkerMode == Orbwalking.OrbwalkingMode.Mixed)
@@ -107,9 +107,9 @@ namespace Kor_AIO.Champions
             {
 
             }
-
         }
 
+        /*
         public override void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
             if (!ConfigManager.championMenu.Item("UseGap", true).GetValue<bool>()) return;
@@ -130,7 +130,7 @@ namespace Kor_AIO.Champions
 
             if (unit != null && Player.Distance(unit) < Q2.Range + unit.BoundingRadius && _hamQcd == 0 && _hamEcd == 0)
             {
-                if (!_hammerTime && R.IsReady())
+                if (iscannon && R.IsReady())
                     R.Cast();
 
                 if (Q2.IsReady())
@@ -139,21 +139,21 @@ namespace Kor_AIO.Champions
 
             if (unit != null && (Player.Distance(unit) < E2.Range + unit.BoundingRadius && _hamEcd == 0))
             {
-                if (!_hammerTime && R.IsReady())
+                if (iscannon && R.IsReady())
                     R.Cast();
 
                 if (E2.IsReady())
                     E2.Cast(unit, packets());
             }
         }
-
+        */
         public static Vector2 getParalelVec(Vector3 pos)
         {
-            if (ConfigManager.championMenu.Item("parlelE").GetValue<bool>())
+            if (ConfigManager.championMenu.Item("UseParallelE", true).GetValue<bool>())
             {
                 Random rnd = new Random();
                 int neg = rnd.Next(0, 1);
-                int away = ConfigManager.championMenu.Item("eAway").GetValue<Slider>().Value;
+                int away = ConfigManager.championMenu.Item("eAway", true).GetValue<Slider>().Value;
                 away = (neg == 1) ? away : -away;
                 var v2 = Vector3.Normalize(pos - Player.ServerPosition) * away;
                 var bom = new Vector2(v2.Y, -v2.X);
@@ -161,7 +161,7 @@ namespace Kor_AIO.Champions
             }
             else
             {
-                var v2 = Vector3.Normalize(pos - Player.ServerPosition) * 300;
+                var v2 = Vector3.Normalize(pos - Player.ServerPosition) * 180;
                 var bom = new Vector2(v2.X, v2.Y);
                 return Player.ServerPosition.To2D() + bom;
             }
@@ -176,21 +176,22 @@ namespace Kor_AIO.Champions
 
                 if (!E.IsReady() || !Q.IsReady() || !isCannon)
                     return false;
-
+                
                 //if (ConfigManager.championMenu.Item("packets").GetValue<bool>())
                 {
                     Q.Cast(pos.To2D(), packets());
                     E.Cast(getParalelVec(pos), packets());
                 }
-                    /*
-                else
+                   
+                //else
+                /*
                 {
                     Vector3 bPos = Player.ServerPosition - Vector3.Normalize(pos - Player.ServerPosition) * 50;
 
                     Player.IssueOrder(GameObjectOrder.MoveTo, bPos);
-                    Q.Cast(pos);
-                    E.Cast(getParalelVec(pos));
-                }*/
+                    Q.Cast(pos, packets());
+                    E.Cast(getParalelVec(pos), packets());
+                }*/ 
 
             }
             catch (Exception ex)

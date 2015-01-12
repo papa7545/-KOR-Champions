@@ -26,8 +26,6 @@ namespace Kor_AIO
             championMenu.AddSubMenu(tsMenu);
             TargetSelector.AddToMenu(tsMenu);
 
-
-
             var potionMenu = new Menu("Potion Control", "Potion");
             new PotionManager().Load(potionMenu);
             utilityMenu.AddSubMenu(potionMenu);
@@ -40,34 +38,5 @@ namespace Kor_AIO
             DrawMenu.AddItem(new MenuItem("draw_Erange", "Draw E").SetValue(new Circle(true, Color.Green)));
             DrawMenu.AddItem(new MenuItem("draw_Rrange", "Draw R").SetValue(new Circle(true, Color.White)));
         }
-
-        #region old things
-        public static void set_menu()
-        {
-            var ComboMenu = new Menu("Combo", "Combo");
-            championMenu.AddSubMenu(ComboMenu);
-            ComboMenu.AddItem(new MenuItem("combo_active", "Active").SetValue(true));
-            ComboMenu.AddItem(new MenuItem("combo_key", "Key :").SetValue(new KeyBind(32, KeyBindType.Press)));
-
-            var HarassMenu = new Menu("Harass", "Harass");
-            championMenu.AddSubMenu(HarassMenu);
-            HarassMenu.AddItem(new MenuItem("harass_active", "Active").SetValue(true));
-            HarassMenu.AddItem(new MenuItem("harass_key", "Key :").SetValue(new KeyBind('T', KeyBindType.Press)));
-
-            var LasthitMenu = new Menu("LastHit", "LastHit");
-            championMenu.AddSubMenu(LasthitMenu);
-            LasthitMenu.AddItem(new MenuItem("lasthit_key", "Key :").SetValue(new KeyBind('C', KeyBindType.Press)));
-
-        }
-
-        public static baseMenuItem m_Items = new baseMenuItem();
-        public class baseMenuItem
-        {
-            public string COMBO_ACTIVE = "combo_active";
-            public string HARASS_ACTIVE = "harass_active";
-            public string COMBO_KEY = "combo_key";
-            public string HARASS_KEY = "harass_key";
-        }
-        #endregion
     }
 }

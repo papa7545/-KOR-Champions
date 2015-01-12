@@ -30,16 +30,14 @@ namespace Kor_AIO.Champions
 
             Q.SetSkillshot(0, 70, 1800f, true, SkillshotType.SkillshotLine);
 
-            ConfigManager.set_menu();
-
             Game.OnGameUpdate += OnGameUpdate;
         }
         public static void OnGameUpdate(EventArgs args)
         {
-            if (ConfigManager.championMenu.Item(ConfigManager.m_Items.COMBO_KEY).GetValue<KeyBind>().Active)
+            if (OrbwalkerMode == Orbwalking.OrbwalkingMode.Combo)
                 combo();
 
-            if (ConfigManager.championMenu.Item(ConfigManager.m_Items.HARASS_KEY).GetValue<KeyBind>().Active)
+            if (OrbwalkerMode == Orbwalking.OrbwalkingMode.Mixed)
                 harass();
 
             if (ObjectManager.Get<Obj_AI_Hero>().Any(t=> t.HasBuff("RocketGrab") && t.IsEnemy && t.IsVisible && !t.IsDead))
