@@ -36,6 +36,7 @@ namespace Kor_AIO.Champions
             var target = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
             if (target == null)
                 return;
+            /*
             float dmg = ComboDamage(target);
 
             if (dmg > target.Health + +20)
@@ -88,7 +89,7 @@ namespace Kor_AIO.Champions
                     E.Cast(target, xMenu.Item("Packet").GetValue<bool>());
                     E2.Cast(target);
                 }
-            }
+            }*/
         }
     }
 }
