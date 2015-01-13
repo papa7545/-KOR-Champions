@@ -39,6 +39,11 @@ namespace Kor_AIO.Champions
 
         public override void Game_OnGameUpdate(EventArgs args)
         {
+            if (Q.IsCharging)
+                Orbwalking.Attack = false;
+            else
+                Orbwalking.Attack = true;
+
             if (OrbwalkerMode == Orbwalking.OrbwalkingMode.Combo)
                 combo();
 
