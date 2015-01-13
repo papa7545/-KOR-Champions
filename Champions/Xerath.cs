@@ -49,6 +49,8 @@ namespace Kor_AIO.Champions
 
             if (OrbwalkerMode == Orbwalking.OrbwalkingMode.Mixed)
                 harass();
+
+
         }
 
         public static void harass()
@@ -79,11 +81,6 @@ namespace Kor_AIO.Champions
 
         }
 
-
-        public static void lasthit()
-        {
-        
-        }
     
     }
 }

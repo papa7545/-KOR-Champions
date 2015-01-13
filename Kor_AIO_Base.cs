@@ -145,5 +145,37 @@ namespace Kor_AIO
         }
         #endregion
 
+        #region LiastHit
+
+        public static void Lasthit_Spell(Spell LastHitSpell)
+        {
+            var Target = ObjectManager.Get<Obj_AI_Minion>().Where(t => t.Health + 5 < LastHitSpell.GetDamage(t)
+                && t.Distance(Player.Position) <= LastHitSpell.Range && !t.IsDead && t.IsEnemy);
+
+            if (Target.Any())
+                Cast(LastHitSpell, Target.First());
+
+        }
+
+        private static double GetDmgWithItem(Obj_AI_Base target)
+        {
+            double Dmg = 0;
+            Dmg = Damage.GetAutoAttackDamage(Player, target);
+
+            if (Items.HasItem(Convert.ToInt32(ItemId.Iceborn_Gauntlet)) && (Items.CanUseItem(Convert.ToInt32(ItemId.Iceborn_Gauntlet)) || Player.HasBuff("sheen", true)))
+                Dmg = Damage.GetAutoAttackDamage(Player, target);
+
+            if (Items.HasItem(Convert.ToInt32(ItemId.Iceborn_Gauntlet)) && (Items.CanUseItem(Convert.ToInt32(ItemId.Iceborn_Gauntlet)) || Player.HasBuff("itemfrozenfist", true)))
+                Dmg = Damage.GetAutoAttackDamage(Player, target) * 1.25f;
+
+            if (Items.HasItem(Convert.ToInt32(ItemId.Trinity_Force)) && (Items.CanUseItem(Convert.ToInt32(ItemId.Trinity_Force)) || Player.HasBuff("sheen", true)))
+                Dmg = Damage.GetAutoAttackDamage(Player, target) * 2.00f;
+
+
+            return Dmg;
+
+        }
+
+        #endregion
     }
 }
