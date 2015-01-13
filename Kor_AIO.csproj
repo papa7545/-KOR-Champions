@@ -59,7 +59,7 @@
   <ItemGroup>
     <Compile Include="Champions\Akali.cs" />
     <Compile Include="Champions\Blitzcrank.cs" />
-    <Compile Include="Champions\Cassiopea.cs" />
+    <Compile Include="Champions\Cassiopeia.cs" />
     <Compile Include="Champions\Jayce.cs">
       <SubType>Code</SubType>
     </Compile>
