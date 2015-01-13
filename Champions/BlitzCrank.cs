@@ -20,6 +20,7 @@ namespace Kor_AIO.Champions
         /// Jeon BlitzCrank.
         /// </summary>
         /// 
+
         public Blitzcrank()
         {
             Q = new Spell(SpellSlot.Q, 1050);
@@ -31,6 +32,11 @@ namespace Kor_AIO.Champions
             var ks_menu = new Menu("KillSteal", "KillSteal");
             ks_menu.AddItem(new MenuItem("ks_enable", "Enable - R").SetValue(true));
             ConfigManager.championMenu.AddSubMenu(ks_menu);
+
+            CircleRendering(Player, Q.Range, ConfigManager.championMenu.Item("draw_Qrange"), 1, ConfigManager.championMenu.Item("draw_Qrange").GetValue<Circle>().Active);
+            CircleRendering(Player, R.Range, ConfigManager.championMenu.Item("draw_Rrange"), 1, ConfigManager.championMenu.Item("draw_Rrange").GetValue<Circle>().Active);
+
+
         }
         public override void Game_OnGameUpdate(EventArgs args)
         {
@@ -47,14 +53,6 @@ namespace Kor_AIO.Champions
                 KillSteal();
         }
 
-        public override void Drawing_OnDraw(EventArgs args)
-        {
-            if (ConfigManager.championMenu.Item("draw_Qrange").GetValue<Circle>().Active)
-                Drawing.DrawCircle(Player.Position, Q.Range, ConfigManager.championMenu.Item("draw_Qrange").GetValue<Circle>().Color);
-            if (ConfigManager.championMenu.Item("draw_Rrange").GetValue<Circle>().Active)
-                Drawing.DrawCircle(Player.Position, R.Range, ConfigManager.championMenu.Item("draw_Rrange").GetValue<Circle>().Color);
-            
-        }
 
         public static void harass()
         {

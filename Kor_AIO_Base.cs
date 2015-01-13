@@ -14,7 +14,12 @@ namespace Kor_AIO
         public static Obj_AI_Hero Player = ObjectManager.Player;
         public static Obj_AI_Hero SelectedTarget = null;
         public static Orbwalking.Orbwalker Orbwalker;
-        public List<Spell> SpellList = new List<Spell>();
+        public static List<RenderInfo> RenderCircleList = new List<RenderInfo>();
+        public class RenderInfo
+        {
+            public Render.Circle _Circle;
+            public MenuItem ColorItem = null;
+        }
 
         public static Spell P, Q, Q2, QCharged, W, W2, E, E2, R, R2;
 
@@ -37,6 +42,7 @@ namespace Kor_AIO
             Game.OnGameUpdate += Orbwalker_Setting;
             Game.OnGameUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
+            Drawing.OnDraw += Drawing_ForRender;
             Drawing.OnEndScene += Drawing_OnDrawEndSence;
             Interrupter.OnPossibleToInterrupt += Interrupter_OnPosibleToInterrupt;
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
@@ -72,8 +78,20 @@ namespace Kor_AIO
             {
                 Orbwalker.SetAttack(true);
             }
+
         }
 
+        public virtual void Drawing_ForRender(EventArgs args)
+        {
+            if(RenderCircleList.Any())
+            {
+                foreach(var _t in RenderCircleList.Where(t => t._Circle.Visible
+                    && t._Circle.Color != t.ColorItem.GetValue<Circle>().Color))
+                {
+                    _t._Circle.Color = _t.ColorItem.GetValue<Circle>().Color;
+                }
+            }
+        }
         public virtual void Drawing_OnDraw(EventArgs args)
         {
         }
@@ -185,6 +203,30 @@ namespace Kor_AIO
             return Dmg;
         }
 
+        #endregion
+
+        #region Render Circle
+        public static void CircleRendering(GameObject target, float Radius,MenuItem coloritem, int tickness = 1, bool Condition = true)
+        {
+            var temp = new Render.Circle(target, Radius, coloritem.GetValue<Circle>().Color, tickness)
+                {
+                    VisibleCondition = c => Condition,
+                };
+            temp.Add();
+            RenderCircleList.Add(new RenderInfo()
+            {
+                _Circle = temp,
+                ColorItem = coloritem
+            });
+        }
+        public static void CircleRendering(GameObject target, float Radius, System.Drawing.Color color, int tickness = 1, bool Condition = true)
+        {
+            var temp = new Render.Circle(target, Radius, color, tickness)
+            {
+                VisibleCondition = c => Condition,
+            };
+            temp.Add();
+        }
         #endregion
     }
 }
