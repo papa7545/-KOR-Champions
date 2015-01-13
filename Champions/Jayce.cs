@@ -161,6 +161,13 @@ namespace Kor_AIO.Champions
             }
         }
 
+        public override void Drawing_OnDraw(EventArgs args)
+        {
+            if(isCannon)
+            {
+
+            }
+        }
 #region ShootQE
 
         public static Vector2 getParalelVec(Vector3 pos)

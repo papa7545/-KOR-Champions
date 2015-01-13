@@ -29,8 +29,8 @@ namespace Kor_AIO
             Orbwalker = new Orbwalking.Orbwalker(orbwalkMenu);
             ConfigManager.championMenu.AddSubMenu(orbwalkMenu);
 
-            ConfigManager.championMenu.SubMenu("Orbwalker").SubMenu("Misc").AddItem(new MenuItem("disMovement", "Disable Movement")).SetValue(false);
-            ConfigManager.championMenu.SubMenu("Orbwalker").SubMenu("Misc").AddItem(new MenuItem("disAttack", "Disable Attack")).SetValue(false);
+            ConfigManager.championMenu.SubMenu("Orbwalker").SubMenu("Misc").AddItem(new MenuItem("disMovement", "Disable Movement", true)).SetValue(false);
+            ConfigManager.championMenu.SubMenu("Orbwalker").SubMenu("Misc").AddItem(new MenuItem("disAttack", "Disable Attack", true)).SetValue(false);
             ConfigManager.LoadMenu();
 
             
@@ -54,7 +54,7 @@ namespace Kor_AIO
 
         public virtual void Orbwalker_Setting(EventArgs args)
         {
-            if (ConfigManager.championMenu.SubMenu("Orbwalker").SubMenu("Misc").Item("disMovement").GetValue<bool>())
+            if (ConfigManager.championMenu.SubMenu("Orbwalker").SubMenu("Misc").Item("disMovement", true).GetValue<bool>())
             {
                 Orbwalker.SetMovement(false);
             }
@@ -63,7 +63,7 @@ namespace Kor_AIO
                 Orbwalker.SetMovement(true);
             }
 
-            if (ConfigManager.championMenu.SubMenu("Orbwalker").SubMenu("Misc").Item("disAttack").GetValue<bool>())
+            if (ConfigManager.championMenu.SubMenu("Orbwalker").SubMenu("Misc").Item("disAttack", true).GetValue<bool>())
             {
                 Orbwalker.SetAttack(false);
             }
