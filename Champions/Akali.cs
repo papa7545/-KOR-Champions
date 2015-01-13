@@ -33,8 +33,10 @@ namespace Kor_AIO.Champions
             var combo = new Menu("Combo", "Combo");
             {
                 combo.AddItem(new MenuItem("ComboUseQ", "Use Q", true).SetValue(true));
+                combo.AddItem(new MenuItem("ComboUseW", "Use W", true).SetValue(true));
                 combo.AddItem(new MenuItem("ComboUseE", "Use E", true).SetValue(true));
                 combo.AddItem(new MenuItem("ComboUseR", "Use R", true).SetValue(true));
+                combo.AddItem(new MenuItem("ComboDistanceR", "Gapclose Distance", true).SetValue(new Slider(20, 3, 60)));
                 ConfigManager.championMenu.AddSubMenu(combo);
             }
 
@@ -64,8 +66,37 @@ namespace Kor_AIO.Champions
             //Misc Menu:
             var misc = new Menu("Misc", "Misc");
             {
+                misc.AddItem(new MenuItem("ShroudSelf", "W Self", true).SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
+                misc.AddItem(new MenuItem("useAntiGapCloser", "Use W On GapClose", true).SetValue(true));
                 misc.AddItem(new MenuItem("usePacket", "Use Packet", true).SetValue(true));
                 ConfigManager.championMenu.AddSubMenu(misc);
+            }
+        }
+
+
+        public override void Game_OnGameUpdate(EventArgs args)
+        {
+            if (Player.IsDead)
+                return;
+
+            if (OrbwalkerMode == Orbwalking.OrbwalkingMode.Combo)
+            {
+
+            }
+
+            if (OrbwalkerMode == Orbwalking.OrbwalkingMode.Mixed)
+            {
+
+            }
+
+            if (ConfigManager.championMenu.Item("ShroudSelf", true).GetValue<KeyBind>().Active)
+            {
+                W.Cast(Player.Position);
+            }
+
+            if (OrbwalkerMode == Orbwalking.OrbwalkingMode.LaneClear)
+            {
+
             }
         }
     }
