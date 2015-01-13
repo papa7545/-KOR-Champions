@@ -147,7 +147,7 @@ namespace Kor_AIO
 
         #region LiastHit
 
-        public static void Lasthit_Spell(Spell LastHitSpell,bool boolean = true, Obj_AI_Minion target = null)
+        public static void Lasthit_Spell(Spell LastHitSpell, bool boolean = true, Obj_AI_Minion target = null)
         {
             if (target == null)
             {
@@ -178,9 +178,7 @@ namespace Kor_AIO
             if (Items.HasItem(Convert.ToInt32(ItemId.Trinity_Force)) && (Items.CanUseItem(Convert.ToInt32(ItemId.Trinity_Force)) || Player.HasBuff("sheen", true)))
                 Dmg = Damage.GetAutoAttackDamage(Player, target) * 2.00f;
 
-
             return Dmg;
-
         }
 
         #endregion

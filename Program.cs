@@ -27,6 +27,8 @@ namespace Kor_AIO
                 return;
             }
 
+            PrintChat(ObjectManager.Player.ChampionName + " Loaded!");
+
             Activator.CreateInstance(plugin);
         }
 

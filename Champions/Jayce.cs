@@ -13,7 +13,6 @@ namespace Kor_AIO.Champions
     {
         public Jayce()
         {
-            Program.PrintChat("Jayce Loaded!");
             LoadMenu();
             SetSpells();
         }
@@ -70,6 +69,24 @@ namespace Kor_AIO.Champions
                 ConfigManager.championMenu.AddSubMenu(harass);
             }
 
+            //Harass menu:
+            var laneclear = new Menu("Lane Clear", "LaneClear");
+            {
+                laneclear.AddItem(new MenuItem("LaneClearUseQ", "Use Cannon Q", true).SetValue(true));
+                laneclear.AddItem(new MenuItem("LaneClearUseW", "Use Cannon W", true).SetValue(true));
+                laneclear.AddItem(new MenuItem("LaneClearUseE", "Use Cannon E", true).SetValue(true));
+                laneclear.AddItem(new MenuItem("LaneClearMana", "Mana > %", true).SetValue(new Slider(40)));
+                ConfigManager.championMenu.AddSubMenu(laneclear);
+            }
+
+            //Harass menu:
+            var jungleclear = new Menu("Jungle Clear", "JungleClear");
+            {
+                jungleclear.AddItem(new MenuItem("JungleClearUseQ", "Use Cannon Q", true).SetValue(true));
+                jungleclear.AddItem(new MenuItem("JungleClearUseW", "Use Cannon W", true).SetValue(true));
+                jungleclear.AddItem(new MenuItem("JungleClearMana", "Mana > %", true).SetValue(new Slider(40)));
+                ConfigManager.championMenu.AddSubMenu(jungleclear);
+            }
             //Misc Menu:
             var misc = new Menu("Misc", "Misc");
             {
