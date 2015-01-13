@@ -147,14 +147,21 @@ namespace Kor_AIO
 
         #region LiastHit
 
-        public static void Lasthit_Spell(Spell LastHitSpell)
+        public static void Lasthit_Spell(Spell LastHitSpell,bool boolean = true, Obj_AI_Minion target = null)
         {
-            var Target = ObjectManager.Get<Obj_AI_Minion>().Where(t => t.Health + 5 < LastHitSpell.GetDamage(t)
-                && t.Distance(Player.Position) <= LastHitSpell.Range && !t.IsDead && t.IsEnemy);
+            if (target == null)
+            {
+                var Target = ObjectManager.Get<Obj_AI_Minion>().Where(t => t.Health + 5 < LastHitSpell.GetDamage(t)
+                    && t.Distance(Player.Position) <= LastHitSpell.Range && !t.IsDead && t.IsEnemy);
 
-            if (Target.Any())
-                Cast(LastHitSpell, Target.First());
-
+                if (Target.Any() && boolean)
+                    Cast(LastHitSpell, Target.First());
+            }
+            else
+            {
+                if (boolean && target.Health + 5 < LastHitSpell.GetDamage(target))
+                    Cast(LastHitSpell, target);
+            }
         }
 
         private static double GetDmgWithItem(Obj_AI_Base target)

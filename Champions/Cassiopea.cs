@@ -29,6 +29,14 @@ namespace Kor_AIO.Champions
             E = new Spell(SpellSlot.E, 700);
             R = new Spell(SpellSlot.R, 825);
 
+            var lasthit_menu = new Menu("LastHit_Spell", "LastHit_Spell");
+            lasthit_menu.AddItem(new MenuItem("lt_enable", "Enable").SetValue(true));
+            lasthit_menu.AddItem(new MenuItem("lt_active", "ActiveKey").SetValue(new KeyBind('X', KeyBindType.Press)));
+            lasthit_menu.AddItem(new MenuItem("lt_auto", "Auto").SetValue(false));
+            lasthit_menu.AddItem(new MenuItem("lt_posion", "IsPosioned?").SetValue(true));
+            ConfigManager.championMenu.AddSubMenu(lasthit_menu);
+
+
             Q.SetSkillshot(1f, 75f, float.MaxValue, false, SkillshotType.SkillshotCircle);
             W.SetSkillshot(0.6f, 200f, float.MaxValue, false, SkillshotType.SkillshotCircle);
         }
@@ -40,6 +48,38 @@ namespace Kor_AIO.Champions
 
             if (OrbwalkerMode == Orbwalking.OrbwalkingMode.Mixed)
                 harass();
+
+
+            if (ConfigManager.championMenu.Item("lt_enable").GetValue<bool>())
+            {
+                if (ConfigManager.championMenu.Item("lt_auto").GetValue<bool>() || ConfigManager.championMenu.Item("lt_active").GetValue<KeyBind>().Active)
+                {
+                    if (ConfigManager.championMenu.Item("lt_posion").GetValue<bool>())
+                    {
+                        if (ObjectManager.Get<Obj_AI_Minion>().Any(
+                            t =>
+                                !t.IsDead &&
+                                t.IsEnemy &&
+                                (t.HasBuff("CassiopeiaNoxiousBlast") || t.HasBuff("CassiopeiaMiasma")) &&
+                                t.Distance(Player.Position) <= E.Range &&
+                                t.Health + 5 < E.GetDamage(t)
+                            ))
+                        {
+                            Lasthit_Spell(E, true,
+                                ObjectManager.Get<Obj_AI_Minion>().First(
+                                t =>
+                                    !t.IsDead &&
+                                    t.IsEnemy &&
+                                    (t.HasBuff("CassiopeiaNoxiousBlast") || t.HasBuff("CassiopeiaMiasma")) &&
+                                    t.Distance(Player.Position) <= E.Range &&
+                                    t.Health + 5 < E.GetDamage(t)
+                                ));
+                        }
+                    }
+                    else
+                        Lasthit_Spell(E);
+                }
+            }
         }
 
         //-----------------------------------Cassiopeia-------------------------------//
@@ -91,8 +131,6 @@ namespace Kor_AIO.Champions
             var eTarget = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Magical);
             var rTarget = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Magical);
             var eTime = Player.Distance(eTarget.Position) / 1900f;
-            var qPred = Q.GetPrediction(eTarget);
-            var wPred = W.GetPrediction(eTarget);
 
             if (eTarget.Buffs.Any(b => b.DisplayName == "CassiopeiaNoxiousBlast" || b.DisplayName == "CassiopeiaMiasma"))
             {
@@ -111,20 +149,6 @@ namespace Kor_AIO.Champions
             if (eTarget == null)
                 return;
         }
-
-
-        public static void lasthit()
-        {
-
-            var eTarget = ObjectManager.Get<Obj_AI_Minion>();
-
-            foreach(var t in eTarget)
-            {
-                if (t.Health <= E.GetDamage(t))
-                    E.CastOnUnit(t);
-            }
-
-        }
-    
+   
     }
 }
