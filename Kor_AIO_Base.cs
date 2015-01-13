@@ -37,6 +37,7 @@ namespace Kor_AIO
             Game.OnGameUpdate += Orbwalker_Setting;
             Game.OnGameUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
+            Drawing.OnEndScene += Drawing_OnDrawEndSence;
             Interrupter.OnPossibleToInterrupt += Interrupter_OnPosibleToInterrupt;
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
             GameObject.OnCreate += GameObject_OnCreate;
@@ -74,6 +75,9 @@ namespace Kor_AIO
         }
 
         public virtual void Drawing_OnDraw(EventArgs args)
+        {
+        }
+        public virtual void Drawing_OnDrawEndSence(EventArgs args)
         {
         }
 
