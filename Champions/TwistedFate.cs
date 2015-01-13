@@ -74,7 +74,6 @@ namespace Kor_AIO.Champions
             menu_notifier.AddItem(new MenuItem("TF_notifier", "UltNotifier").SetValue(true));
             menu_notifier.AddItem(new MenuItem("TF_notifier_HP", "Notice On HP(%)").SetValue(new Slider(10, 0, 100)));
 
-            Drawing.OnEndScene += OnDraw_EndScene;
         }
 
         public override void Game_OnGameUpdate(EventArgs args)
@@ -177,7 +176,7 @@ namespace Kor_AIO.Champions
                     textshow = false;
                 #endregion
         }
-        public static void OnDraw_EndScene(EventArgs args)
+        public override void Drawing_OnDrawEndSence(EventArgs args)
         {
             if (ConfigManager.championMenu.Item("draw_Rrange").GetValue<Circle>().Active)
             {

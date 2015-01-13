@@ -101,10 +101,10 @@ namespace Kor_AIO.Champions
         /// </summary>
         public static void harass()
         {
+            if (TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Magical) == null) return;
+
             var eTarget = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Magical);
             var eTime = Player.Distance(eTarget.Position) / 1900f;
-            var qPred = Q.GetPrediction(eTarget);
-            var wPred = W.GetPrediction(eTarget);
 
             if (eTarget.Buffs.Any(b => b.DisplayName == "CassiopeiaNoxiousBlast" || b.DisplayName == "CassiopeiaMiasma"))
             {
@@ -127,11 +127,13 @@ namespace Kor_AIO.Champions
         public static void combo()
         {
 
-
+            if (TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Magical) == null)  return;
+            
             var eTarget = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Magical);
-            var rTarget = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Magical);
             var eTime = Player.Distance(eTarget.Position) / 1900f;
 
+
+            
             if (eTarget.Buffs.Any(b => b.DisplayName == "CassiopeiaNoxiousBlast" || b.DisplayName == "CassiopeiaMiasma"))
             {
                 foreach (var buff in eTarget.Buffs.Where(b => b.DisplayName == "CassiopeiaNoxiousBlast" || b.DisplayName == "CassiopeiaMiasma"))
@@ -148,6 +150,7 @@ namespace Kor_AIO.Champions
             }
             if (eTarget == null)
                 return;
+
         }
    
     }

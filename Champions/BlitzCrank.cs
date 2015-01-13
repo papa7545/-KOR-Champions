@@ -17,8 +17,7 @@ namespace Kor_AIO.Champions
     class Blitzcrank : Kor_AIO_Base
     {
         /// <summary>
-        /// Jeon Cassiopeia.
-        /// Cassiopeia Posion Buff Name : CassiopeiaNoxiousBlast ,CassiopeiaMiasma
+        /// Jeon BlitzCrank.
         /// </summary>
         /// 
         public Blitzcrank()
@@ -26,9 +25,12 @@ namespace Kor_AIO.Champions
             Q = new Spell(SpellSlot.Q, 1050);
             W = new Spell(SpellSlot.W);
             E = new Spell(SpellSlot.E);
-            R = new Spell(SpellSlot.R, 450);
+            R = new Spell(SpellSlot.R, 600);
 
             Q.SetSkillshot(0, 70, 1800f, true, SkillshotType.SkillshotLine);
+            var ks_menu = new Menu("KillSteal", "KillSteal");
+            ks_menu.AddItem(new MenuItem("ks_enable", "Enable - R").SetValue(true));
+            ConfigManager.championMenu.AddSubMenu(ks_menu);
         }
         public override void Game_OnGameUpdate(EventArgs args)
         {
@@ -40,41 +42,34 @@ namespace Kor_AIO.Champions
 
             if (ObjectManager.Get<Obj_AI_Hero>().Any(t=> t.HasBuff("RocketGrab") && t.IsEnemy && t.IsVisible && !t.IsDead))
                 E.Cast();
+
+            if (ConfigManager.championMenu.Item("ks_enable").GetValue<bool>())
+                KillSteal();
         }
 
+        public override void Drawing_OnDraw(EventArgs args)
+        {
+            if (ConfigManager.championMenu.Item("draw_Qrange").GetValue<Circle>().Active)
+                Drawing.DrawCircle(Player.Position, Q.Range, ConfigManager.championMenu.Item("draw_Qrange").GetValue<Circle>().Color);
+            if (ConfigManager.championMenu.Item("draw_Rrange").GetValue<Circle>().Active)
+                Drawing.DrawCircle(Player.Position, R.Range, ConfigManager.championMenu.Item("draw_Rrange").GetValue<Circle>().Color);
+            
+        }
 
         public static void harass()
         {
-            Obj_AI_Hero qTarget = null;
-            if(ObjectManager.Get<Obj_AI_Hero>().Any(t=> t.Distance(Player.Position) <= Q.Range && t.IsEnemy && !t.IsDead
-                && t.IsVisible))
-            {
-                qTarget = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
-            }
-            
-
-            if (qTarget == null)
-                return;
-            else if (Q.IsReady())
-                Kor_AIO_Base.Cast(Q,qTarget);
-                
+            Kor_AIO_Base.Cast(Q, TargetSelector.DamageType.Magical);
         }
 
         public static void combo()
         {
-            Obj_AI_Hero qTarget = null;
-            if (ObjectManager.Get<Obj_AI_Hero>().Any(t => t.Distance(Player.Position) <= Q.Range && t.IsEnemy && !t.IsDead
-                && t.IsVisible))
-            {
-                qTarget = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
-            }
-
-
-            if (qTarget == null)
-                return;
-            else if (Q.IsReady())
-                Kor_AIO_Base.Cast(Q, qTarget);
-
+            Kor_AIO_Base.Cast(Q, TargetSelector.DamageType.Magical);
+        }
+        public static void KillSteal()
+        {
+            if (ObjectManager.Get<Obj_AI_Hero>().Any(t => t.IsEnemy && !t.IsDead && t.IsVisible && t.Distance(Player.Position) <= R.Range &&
+                t.Health <= R.GetDamage(t)))
+                R.Cast();
         }
     }
 }
