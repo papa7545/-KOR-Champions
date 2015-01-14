@@ -2,6 +2,7 @@
 using LeagueSharp.Common;
 using SharpDX;
 using System;
+using System.Media;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -40,7 +41,13 @@ namespace Kor_AIO
             ConfigManager.championMenu.SubMenu("Orbwalker").SubMenu("Misc").AddItem(new MenuItem("disAttack", "Disable Attack", true)).SetValue(false);
             ConfigManager.LoadMenu();
 
-            
+            var soundMenu = new Menu("Sounds", "Sounds");
+            ConfigManager.championMenu.AddSubMenu(soundMenu);
+            soundMenu.AddItem(new MenuItem("onLoad", "onLoad")).SetValue(true);
+
+            if (ConfigManager.championMenu.Item("onLoad").GetValue<bool>())
+                new SoundPlayer(Properties.Resources.StartUp).Play();
+
             Game.OnGameUpdate += Orbwalker_Setting;
             Game.OnGameUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
