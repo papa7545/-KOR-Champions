@@ -142,8 +142,8 @@ namespace Kor_AIO.Champions
             }
             else
             {
-                Kor_AIO_Base.Cast(Q, TargetSelector.DamageType.Magical);
-                Kor_AIO_Base.Cast(W, TargetSelector.DamageType.Magical);
+                Cast(Q, TargetSelector.DamageType.Magical);
+                Cast(W, TargetSelector.DamageType.Magical);
             }
             if (eTarget == null)
                 return;

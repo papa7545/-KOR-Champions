@@ -30,12 +30,12 @@ namespace Kor_AIO.Champions
 
             var ks_menu = new Menu("KillSteal", "KillSteal");
             ks_menu.AddItem(new MenuItem("ks_enable", "Enable - Q").SetValue(true));
-            ConfigManager.championMenu.AddSubMenu(ks_menu);
+            championMenu.AddSubMenu(ks_menu);
 
             var E_menu = new Menu("E - TimeWarp", "E - TimeWarp");
             E_menu.AddItem(new MenuItem("E_combo", "Combo").SetValue(true));
             E_menu.AddItem(new MenuItem("E_target", "Target").SetValue(new StringList(new []{"Me","Enemy"})));
-            ConfigManager.championMenu.AddSubMenu(E_menu);
+            championMenu.AddSubMenu(E_menu);
 
             var R_menu = new Menu("R - ChronoShift", "R - ChronoShift");
             R_menu.AddItem(new MenuItem("R_oncombo", "OnCombo").SetValue(true));
@@ -48,10 +48,10 @@ namespace Kor_AIO.Champions
             }
             R_menu.AddItem(new MenuItem("R_HP", "HP(%)").SetValue(new Slider(10,0,100)));
 
-            ConfigManager.championMenu.AddSubMenu(R_menu);
+            championMenu.AddSubMenu(R_menu);
 
-            CircleRendering(Player, Q.Range, ConfigManager.championMenu.Item("draw_Qrange"), 5);
-            CircleRendering(Player, R.Range, ConfigManager.championMenu.Item("draw_Rrange"), 5);
+            CircleRendering(Player, Q.Range, championMenu.Item("draw_Qrange"), 5);
+            CircleRendering(Player, R.Range, championMenu.Item("draw_Rrange"), 5);
 
         }
         public override void Game_OnGameUpdate(EventArgs args)
@@ -62,7 +62,7 @@ namespace Kor_AIO.Champions
             if (OrbwalkerMode == Orbwalking.OrbwalkingMode.Mixed)
                 harass();
 
-            if (ConfigManager.championMenu.Item("ks_enable").GetValue<bool>())
+            if (championMenu.Item("ks_enable").GetValue<bool>())
                 KillSteal();
             
             CastR();
@@ -84,9 +84,9 @@ namespace Kor_AIO.Champions
         {
             if (Q.IsReady())
                 Cast(Q, TargetSelector.DamageType.Magical);
-            else if (E.IsReady() && ConfigManager.championMenu.Item("E_combo").GetValue<bool>())
+            else if (E.IsReady() && championMenu.Item("E_combo").GetValue<bool>())
             {
-                if (ConfigManager.championMenu.Item("E_target").GetValue<StringList>().SelectedValue == "Me")
+                if (championMenu.Item("E_target").GetValue<StringList>().SelectedValue == "Me")
                     Cast(E);
                 else
                     Cast(E, TargetSelector.DamageType.Magical);
@@ -106,21 +106,21 @@ namespace Kor_AIO.Champions
         {
             bool _if = true;
 
-            if (ConfigManager.championMenu.Item("R_oncombo").GetValue<bool>())
+            if (championMenu.Item("R_oncombo").GetValue<bool>())
                 _if = (OrbwalkerMode == Orbwalking.OrbwalkingMode.Combo);
 
             if (R.IsReady() && _if)
             {
                 var SaveList = new List<Obj_AI_Hero>();
-                if (ConfigManager.championMenu.Item("R_me").GetValue<bool>()
-                    && Player.HealthPercentage() <= ConfigManager.championMenu.Item("R_HP").GetValue<Slider>().Value)
+                if (championMenu.Item("R_me").GetValue<bool>()
+                    && Player.HealthPercentage() <= championMenu.Item("R_HP").GetValue<Slider>().Value)
                     SaveList.Add(Player);
 
-                if (ConfigManager.championMenu.Item("R_ally").GetValue<bool>())
+                if (championMenu.Item("R_ally").GetValue<bool>())
                 {
                     foreach (var hero in ObjectManager.Get<Obj_AI_Hero>().Where(t => !t.IsDead && !t.IsMe && t.IsAlly
-                        && t.HealthPercentage() <= ConfigManager.championMenu.Item("R_HP").GetValue<Slider>().Value
-                        && ConfigManager.championMenu.Item("R_ally_" + t.ChampionName).GetValue<bool>()))
+                        && t.HealthPercentage() <= championMenu.Item("R_HP").GetValue<Slider>().Value
+                        && championMenu.Item("R_ally_" + t.ChampionName).GetValue<bool>()))
                     {
                         SaveList.Add(hero);
                     }
