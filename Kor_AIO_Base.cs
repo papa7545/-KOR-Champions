@@ -13,6 +13,8 @@ namespace Kor_AIO
     internal class Kor_AIO_Base
     {
         public static Obj_AI_Hero Player = ObjectManager.Player;
+        public static Menu championMenu = ConfigManager.championMenu;
+        public static Menu utilityMenu = ConfigManager.utilityMenu;
         public static Obj_AI_Hero CurrentTarget = null;
         public static Orbwalking.Orbwalker Orbwalker;
 
