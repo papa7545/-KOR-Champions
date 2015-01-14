@@ -14,6 +14,7 @@ namespace Kor_AIO
         public static Obj_AI_Hero Player = ObjectManager.Player;
         public static Obj_AI_Hero CurrentTarget = null;
         public static Orbwalking.Orbwalker Orbwalker;
+
         public static List<RenderInfo> RenderCircleList = new List<RenderInfo>();
         public class RenderInfo
         {
@@ -21,6 +22,7 @@ namespace Kor_AIO
             public MenuItem ColorItem = null;
         }
 
+        //Spells
         public static Spell P, Q, Q2, QCharged, W, W2, E, E2, R, R2;
 
         public static Orbwalking.OrbwalkingMode OrbwalkerMode

@@ -30,8 +30,6 @@ namespace Kor_AIO.Champions
             R = new Spell(SpellSlot.R, 825);
 
             var lasthit_menu = new Menu("LastHit_Spell", "LastHit_Spell");
-            lasthit_menu.AddItem(new MenuItem("lt_enable", "Enable").SetValue(true));
-            lasthit_menu.AddItem(new MenuItem("lt_active", "ActiveKey").SetValue(new KeyBind('X', KeyBindType.Press)));
             lasthit_menu.AddItem(new MenuItem("lt_auto", "Auto").SetValue(false));
             lasthit_menu.AddItem(new MenuItem("lt_posion", "IsPosioned?").SetValue(true));
             ConfigManager.championMenu.AddSubMenu(lasthit_menu);
@@ -49,10 +47,9 @@ namespace Kor_AIO.Champions
             if (OrbwalkerMode == Orbwalking.OrbwalkingMode.Mixed)
                 harass();
 
-
-            if (ConfigManager.championMenu.Item("lt_enable").GetValue<bool>())
+            if (OrbwalkerMode == Orbwalking.OrbwalkingMode.LastHit)
             {
-                if (ConfigManager.championMenu.Item("lt_auto").GetValue<bool>() || ConfigManager.championMenu.Item("lt_active").GetValue<KeyBind>().Active)
+                if (ConfigManager.championMenu.Item("lt_auto").GetValue<bool>())
                 {
                     if (ConfigManager.championMenu.Item("lt_posion").GetValue<bool>())
                     {

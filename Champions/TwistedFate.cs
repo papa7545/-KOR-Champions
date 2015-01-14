@@ -16,8 +16,6 @@ namespace Kor_AIO.Champions
 {
     class TwistedFate : Kor_AIO_Base
     {
-
-
         public static card cards= card.none;
         public enum card {
             none,
