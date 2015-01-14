@@ -12,7 +12,7 @@ namespace Kor_AIO
     internal class Kor_AIO_Base
     {
         public static Obj_AI_Hero Player = ObjectManager.Player;
-        public static Obj_AI_Hero SelectedTarget = null;
+        public static Obj_AI_Hero CurrentTarget = null;
         public static Orbwalking.Orbwalker Orbwalker;
         public static List<RenderInfo> RenderCircleList = new List<RenderInfo>();
         public class RenderInfo

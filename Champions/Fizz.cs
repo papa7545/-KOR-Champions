@@ -30,11 +30,37 @@ namespace Kor_AIO.Champions
             R.SetSkillshot(0.5f, 250f, 1200f, false, SkillshotType.SkillshotLine);
         }
 
-        
+        public override void Game_OnGameUpdate(EventArgs args)
+        {
+            if (Player.IsDead)
+                return;
+
+            if (OrbwalkerMode == Orbwalking.OrbwalkingMode.Combo)
+            {
+                Combo();
+            }
+
+            if (OrbwalkerMode == Orbwalking.OrbwalkingMode.Mixed)
+            {
+
+            }
+
+            if (ConfigManager.championMenu.Item("ShroudSelf", true).GetValue<KeyBind>().Active)
+            {
+                W.Cast(Player.Position);
+            }
+
+            if (OrbwalkerMode == Orbwalking.OrbwalkingMode.LaneClear)
+            {
+
+            }
+        }
+
         public static void Combo()
         {
-            var target = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
-            if (target == null)
+            CurrentTarget = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
+
+            if (CurrentTarget == null)
                 return;
             /*
             float dmg = ComboDamage(target);
