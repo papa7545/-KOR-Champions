@@ -21,28 +21,39 @@ namespace Kor_AIO.Champions
         /// Cassiopeia Posion Buff Name : CassiopeiaNoxiousBlast ,CassiopeiaMiasma
         /// </summary>
         public static float rTime;
+        public static Render.Circle drawR = null;
 
         public Xerath()
         {
             Q = new Spell(SpellSlot.Q, 1500);
             W = new Spell(SpellSlot.W, 1100);
             E = new Spell(SpellSlot.E, 1050);
-            R = new Spell(SpellSlot.R, 3200);
+            R = new Spell(SpellSlot.R, 3000);
 
-            
             Q.SetSkillshot(0.6f, 100f, float.MaxValue, false, SkillshotType.SkillshotLine);
             Q.SetCharged("XerathArcanopulseChargeUp", "XerathArcanopulseChargeUp", 750-50, 1550, 1.5f);
             W.SetSkillshot(0.7f, 200f, float.MaxValue, false, SkillshotType.SkillshotCircle);
             E.SetSkillshot(0, 60, 1600f, true, SkillshotType.SkillshotLine);
             R.SetSkillshot(0.7f, 120f, float.MaxValue, false, SkillshotType.SkillshotCircle);
-            CircleRendering(Player, Q.Range, ConfigManager.championMenu.Item("draw_Qrange"), 5);
-            CircleRendering(Player, W.Range, ConfigManager.championMenu.Item("draw_Wrange"), 5);
-            CircleRendering(Player, E.Range, ConfigManager.championMenu.Item("draw_Erange"), 5);
-            CircleRendering(Player, R.Range, ConfigManager.championMenu.Item("draw_Erange"), 5);
+            CircleRendering(Player, Q.Range, championMenu.Item("draw_Qrange"), 5);
+            CircleRendering(Player, W.Range, championMenu.Item("draw_Wrange"), 5);
+            CircleRendering(Player, E.Range, championMenu.Item("draw_Erange"), 5);
+
+            drawR = new Render.Circle(Player, R.Range, championMenu.Item("draw_Rrange").GetValue<Circle>().Color, 5)
+            {
+                VisibleCondition = c => championMenu.Item("draw_Rrange").GetValue<Circle>().Active,
+            };
+            drawR.Add();
         }
 
         public override void Game_OnGameUpdate(EventArgs args)
         {
+            if (R.Level > 0 && R.Level != R.Level * 1000 + 2000)
+                R.Range = R.Level * 1000 + 2000;
+            if (R.Range != drawR.Radius)
+                drawR.Radius = R.Range;
+
+
             if (Q.IsCharging)
                 Orbwalking.Attack = false;
             else
@@ -77,9 +88,9 @@ namespace Kor_AIO.Champions
             }
             else
             {
-                Kor_AIO_Base.Cast(Q, TargetSelector.DamageType.Magical);
-                Kor_AIO_Base.Cast(W, TargetSelector.DamageType.Magical);
-                Kor_AIO_Base.Cast(E, TargetSelector.DamageType.Magical);
+                Cast(Q, TargetSelector.DamageType.Magical);
+                Cast(W, TargetSelector.DamageType.Magical);
+                Cast(E, TargetSelector.DamageType.Magical);
             }
 
         }
