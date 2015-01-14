@@ -35,9 +35,10 @@ namespace Kor_AIO.Champions
             W.SetSkillshot(0.7f, 200f, float.MaxValue, false, SkillshotType.SkillshotCircle);
             E.SetSkillshot(0, 60, 1600f, true, SkillshotType.SkillshotLine);
             R.SetSkillshot(0.7f, 120f, float.MaxValue, false, SkillshotType.SkillshotCircle);
-            CircleRendering(Player, Q.Range, ConfigManager.championMenu.Item("draw_Qrange"), 5, ConfigManager.championMenu.Item("draw_Qrange").GetValue<Circle>().Active);
-            CircleRendering(Player, W.Range, ConfigManager.championMenu.Item("draw_Wrange"), 5, ConfigManager.championMenu.Item("draw_Wrange").GetValue<Circle>().Active);
-            CircleRendering(Player, E.Range, ConfigManager.championMenu.Item("draw_Erange"), 5, ConfigManager.championMenu.Item("draw_Erange").GetValue<Circle>().Active);
+            CircleRendering(Player, Q.Range, ConfigManager.championMenu.Item("draw_Qrange"), 5);
+            CircleRendering(Player, W.Range, ConfigManager.championMenu.Item("draw_Wrange"), 5);
+            CircleRendering(Player, E.Range, ConfigManager.championMenu.Item("draw_Erange"), 5);
+            CircleRendering(Player, R.Range, ConfigManager.championMenu.Item("draw_Erange"), 5);
         }
 
         public override void Game_OnGameUpdate(EventArgs args)

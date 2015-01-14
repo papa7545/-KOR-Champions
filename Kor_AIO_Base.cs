@@ -70,24 +70,8 @@ namespace Kor_AIO
 
         public virtual void Orbwalker_Setting(EventArgs args)
         {
-            if (ConfigManager.championMenu.SubMenu("Orbwalker").SubMenu("Misc").Item("disMovement", true).GetValue<bool>())
-            {
-                Orbwalker.SetMovement(false);
-            }
-            else
-            {
-                Orbwalker.SetMovement(true);
-            }
-
-            if (ConfigManager.championMenu.SubMenu("Orbwalker").SubMenu("Misc").Item("disAttack", true).GetValue<bool>())
-            {
-                Orbwalker.SetAttack(false);
-            }
-            else
-            {
-                Orbwalker.SetAttack(true);
-            }
-
+            Orbwalker.SetMovement(!ConfigManager.championMenu.SubMenu("Orbwalker").SubMenu("Misc").Item("disMovement", true).GetValue<bool>());
+            Orbwalker.SetAttack(!ConfigManager.championMenu.SubMenu("Orbwalker").SubMenu("Misc").Item("disAttack", true).GetValue<bool>());
         }
 
         public virtual void Drawing_ForRender(EventArgs args)
@@ -215,11 +199,11 @@ namespace Kor_AIO
         #endregion
 
         #region Render Circle
-        public static void CircleRendering(GameObject target, float Radius,MenuItem coloritem, int tickness = 1, bool Condition = true)
+        public static void CircleRendering(GameObject target, float Radius,MenuItem coloritem, int tickness = 1)
         {
             var temp = new Render.Circle(target, Radius, coloritem.GetValue<Circle>().Color, tickness)
                 {
-                    VisibleCondition = c => Condition,
+                    VisibleCondition = c => coloritem.GetValue<Circle>().Active,
                 };
             temp.Add();
             RenderCircleList.Add(new RenderInfo()
@@ -227,14 +211,6 @@ namespace Kor_AIO
                 _Circle = temp,
                 ColorItem = coloritem
             });
-        }
-        public static void CircleRendering(GameObject target, float Radius, System.Drawing.Color color, int tickness = 1, bool Condition = true)
-        {
-            var temp = new Render.Circle(target, Radius, color, tickness)
-            {
-                VisibleCondition = c => Condition,
-            };
-            temp.Add();
         }
         #endregion
     }
