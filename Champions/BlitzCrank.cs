@@ -33,8 +33,8 @@ namespace Kor_AIO.Champions
             ks_menu.AddItem(new MenuItem("ks_enable", "Enable - R").SetValue(true));
             ConfigManager.championMenu.AddSubMenu(ks_menu);
 
-            CircleRendering(Player, Q.Range, ConfigManager.championMenu.Item("draw_Qrange"), 1, ConfigManager.championMenu.Item("draw_Qrange").GetValue<Circle>().Active);
-            CircleRendering(Player, R.Range, ConfigManager.championMenu.Item("draw_Rrange"), 1, ConfigManager.championMenu.Item("draw_Rrange").GetValue<Circle>().Active);
+            CircleRendering(Player, Q.Range, ConfigManager.championMenu.Item("draw_Qrange"), 5, ConfigManager.championMenu.Item("draw_Qrange").GetValue<Circle>().Active);
+            CircleRendering(Player, R.Range, ConfigManager.championMenu.Item("draw_Rrange"), 5, ConfigManager.championMenu.Item("draw_Rrange").GetValue<Circle>().Active);
 
 
         }
