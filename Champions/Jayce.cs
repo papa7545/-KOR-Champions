@@ -48,7 +48,6 @@ namespace Kor_AIO.Champions
         private void LoadMenu()
         {
             //Combo Menu:
-
             championMenu.SubMenu("Combo").AddItem(new MenuItem("ComboUseQ", "Use Cannon Q", true).SetValue(true));
             championMenu.SubMenu("Combo").AddItem(new MenuItem("ComboUseW", "Use Cannon W", true).SetValue(true));
             championMenu.SubMenu("Combo").AddItem(new MenuItem("ComboUseE", "Use Cannon E", true).SetValue(true));
@@ -59,20 +58,18 @@ namespace Kor_AIO.Champions
 
 
             //Harass menu:
-
             championMenu.SubMenu("Harass").AddItem(new MenuItem("HarassUseQ", "Use Cannon Q", true).SetValue(true));
             championMenu.SubMenu("Harass").AddItem(new MenuItem("HarassUseW", "Use Cannon W", true).SetValue(true));
             championMenu.SubMenu("Harass").AddItem(new MenuItem("manaH", "Mana > %", true).SetValue(new Slider(40)));
 
             //Lane Clear menu:
-
             championMenu.SubMenu("LaneClear").AddItem(new MenuItem("LaneClearUseQ", "Use Cannon Q", true).SetValue(true));
             championMenu.SubMenu("LaneClear").AddItem(new MenuItem("LaneClearUseW", "Use Cannon W", true).SetValue(true));
             championMenu.SubMenu("LaneClear").AddItem(new MenuItem("LaneClearUseE", "Use Cannon E", true).SetValue(true));
             championMenu.SubMenu("LaneClear").AddItem(new MenuItem("LaneClearMana", "Mana > %", true).SetValue(new Slider(40)));
 
 
-            //Harass menu:
+            //Jungle Clear menu:
             championMenu.SubMenu("JungleClear").AddItem(new MenuItem("JungleClearUseQ", "Use Cannon Q", true).SetValue(true));
             championMenu.SubMenu("JungleClear").AddItem(new MenuItem("JungleClearUseW", "Use Cannon W", true).SetValue(true));
             championMenu.SubMenu("JungleClear").AddItem(new MenuItem("JungleClearMana", "Mana > %", true).SetValue(new Slider(40)));
