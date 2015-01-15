@@ -47,59 +47,44 @@ namespace Kor_AIO.Champions
 
         private void LoadMenu()
         {
-            //Combo menu:
-            var combo = new Menu("Combo", "Combo");
-            {
-                combo.AddItem(new MenuItem("ComboUseQ", "Use Cannon Q", true).SetValue(true));
-                combo.AddItem(new MenuItem("ComboUseW", "Use Cannon W", true).SetValue(true));
-                combo.AddItem(new MenuItem("ComboUseECombo", "Use Cannon E", true).SetValue(true));
-                combo.AddItem(new MenuItem("ComboUseQHammer", "Use Hammer Q", true).SetValue(true));
-                combo.AddItem(new MenuItem("ComboUseWHammer", "Use Hammer W", true).SetValue(true));
-                combo.AddItem(new MenuItem("ComboUseEHammer", "Use Hammer E", true).SetValue(true));
-                combo.AddItem(new MenuItem("ComboUseR", "Use R to Switch", true).SetValue(true));
-                ConfigManager.championMenu.AddSubMenu(combo);
-            }
+            //Combo Menu:
+
+            championMenu.SubMenu("Combo").AddItem(new MenuItem("ComboUseQ", "Use Cannon Q", true).SetValue(true));
+            championMenu.SubMenu("Combo").AddItem(new MenuItem("ComboUseW", "Use Cannon W", true).SetValue(true));
+            championMenu.SubMenu("Combo").AddItem(new MenuItem("ComboUseE", "Use Cannon E", true).SetValue(true));
+            championMenu.SubMenu("Combo").AddItem(new MenuItem("ComboUseQHammer", "Use Hammer Q", true).SetValue(true));
+            championMenu.SubMenu("Combo").AddItem(new MenuItem("ComboUseWHammer", "Use Hammer W", true).SetValue(true));
+            championMenu.SubMenu("Combo").AddItem(new MenuItem("ComboUseEHammer", "Use Hammer E", true).SetValue(true));
+            championMenu.SubMenu("Combo").AddItem(new MenuItem("ComboUseR", "Use R to Switch", true).SetValue(true));
+
 
             //Harass menu:
-            var harass = new Menu("Harass", "Harass");
-            {
-                harass.AddItem(new MenuItem("HarassUseQ", "Use Cannon Q", true).SetValue(true));
-                harass.AddItem(new MenuItem("HarassUseW", "Use Cannon W", true).SetValue(true));
-                harass.AddItem(new MenuItem("manaH", "Mana > %", true).SetValue(new Slider(40)));
-                ConfigManager.championMenu.AddSubMenu(harass);
-            }
+
+            championMenu.SubMenu("Harass").AddItem(new MenuItem("HarassUseQ", "Use Cannon Q", true).SetValue(true));
+            championMenu.SubMenu("Harass").AddItem(new MenuItem("HarassUseW", "Use Cannon W", true).SetValue(true));
+            championMenu.SubMenu("Harass").AddItem(new MenuItem("manaH", "Mana > %", true).SetValue(new Slider(40)));
+
+            //Lane Clear menu:
+
+            championMenu.SubMenu("LaneClear").AddItem(new MenuItem("LaneClearUseQ", "Use Cannon Q", true).SetValue(true));
+            championMenu.SubMenu("LaneClear").AddItem(new MenuItem("LaneClearUseW", "Use Cannon W", true).SetValue(true));
+            championMenu.SubMenu("LaneClear").AddItem(new MenuItem("LaneClearUseE", "Use Cannon E", true).SetValue(true));
+            championMenu.SubMenu("LaneClear").AddItem(new MenuItem("LaneClearMana", "Mana > %", true).SetValue(new Slider(40)));
+
 
             //Harass menu:
-            var laneclear = new Menu("Lane Clear", "LaneClear");
-            {
-                laneclear.AddItem(new MenuItem("LaneClearUseQ", "Use Cannon Q", true).SetValue(true));
-                laneclear.AddItem(new MenuItem("LaneClearUseW", "Use Cannon W", true).SetValue(true));
-                laneclear.AddItem(new MenuItem("LaneClearUseE", "Use Cannon E", true).SetValue(true));
-                laneclear.AddItem(new MenuItem("LaneClearMana", "Mana > %", true).SetValue(new Slider(40)));
-                ConfigManager.championMenu.AddSubMenu(laneclear);
-            }
+            championMenu.SubMenu("JungleClear").AddItem(new MenuItem("JungleClearUseQ", "Use Cannon Q", true).SetValue(true));
+            championMenu.SubMenu("JungleClear").AddItem(new MenuItem("JungleClearUseW", "Use Cannon W", true).SetValue(true));
+            championMenu.SubMenu("JungleClear").AddItem(new MenuItem("JungleClearMana", "Mana > %", true).SetValue(new Slider(40)));
 
-            //Harass menu:
-            var jungleclear = new Menu("Jungle Clear", "JungleClear");
-            {
-                jungleclear.AddItem(new MenuItem("JungleClearUseQ", "Use Cannon Q", true).SetValue(true));
-                jungleclear.AddItem(new MenuItem("JungleClearUseW", "Use Cannon W", true).SetValue(true));
-                jungleclear.AddItem(new MenuItem("JungleClearMana", "Mana > %", true).SetValue(new Slider(40)));
-                ConfigManager.championMenu.AddSubMenu(jungleclear);
-            }
             //Misc Menu:
-            var misc = new Menu("Misc", "Misc");
-            {
-                misc.AddItem(new MenuItem("shootQE", "Shoot QE", true).SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
-                misc.AddItem(new MenuItem("UseParallelE", "Use Parallel E", true).SetValue(true));
-                misc.AddItem(new MenuItem("eAway", "Gate Distance", true).SetValue(new Slider(20, 3, 60)));
-                misc.AddItem(new MenuItem("UseInterrupt", "Use E to Interrupt", true).SetValue(true));
-                misc.AddItem(new MenuItem("UseGapCloser", "Use E for GapCloser", true).SetValue(true));
-                misc.AddItem(new MenuItem("UseQAlways", "Use Q When E onCD", true).SetValue(true));
-                misc.AddItem(new MenuItem("autoE", "EPushInCombo HP < %", true).SetValue(new Slider(20)));
-                misc.AddItem(new MenuItem("usePacket", "Use Packet", true).SetValue(true));
-                ConfigManager.championMenu.AddSubMenu(misc);
-            }
+            championMenu.SubMenu("Misc").AddItem(new MenuItem("shootQE", "Shoot QE", true).SetValue(new KeyBind('T', KeyBindType.Press)));
+            championMenu.SubMenu("Misc").AddItem(new MenuItem("UseParallelE", "Use Parallel E", true).SetValue(true));
+            championMenu.SubMenu("Misc").AddItem(new MenuItem("eAway", "Gate Distance", true).SetValue(new Slider(20, 3, 60)));
+            championMenu.SubMenu("Misc").AddItem(new MenuItem("UseInterrupt", "Use E to Interrupt", true).SetValue(true));
+            championMenu.SubMenu("Misc").AddItem(new MenuItem("UseGapCloser", "Use E for GapCloser", true).SetValue(true));
+            championMenu.SubMenu("Misc").AddItem(new MenuItem("UseQAlways", "Use Q When E onCD", true).SetValue(true));
+            championMenu.SubMenu("Misc").AddItem(new MenuItem("autoE", "EPushInCombo HP < %", true).SetValue(new Slider(20)));
         }
 
         public static void checkForm()
@@ -107,21 +92,16 @@ namespace Kor_AIO.Champions
             isCannon = Player.Spellbook.GetSpell(SpellSlot.Q).SData.Name.Contains("jayceshockblast");
         }
 
-        public static bool packets()
-        {
-            return ConfigManager.championMenu.Item("usePacket", true).GetValue<bool>();
-        }
-
         public override void Game_OnGameUpdate(EventArgs args)
         {
-            if (Player.IsDead) 
+            if (Player.IsDead)
                 return;
 
             checkForm();
 
             if (OrbwalkerMode == Orbwalking.OrbwalkingMode.Combo)
             {
-                
+
             }
 
             if (OrbwalkerMode == Orbwalking.OrbwalkingMode.Mixed)
@@ -129,7 +109,7 @@ namespace Kor_AIO.Champions
 
             }
 
-            if (ConfigManager.championMenu.Item("shootQE", true).GetValue<KeyBind>().Active)
+            if (championMenu.Item("shootQE", true).GetValue<KeyBind>().Active)
             {
                 shootQE(Game.CursorPos);
             }
@@ -142,7 +122,7 @@ namespace Kor_AIO.Champions
 
         public override void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
-            if (!ConfigManager.championMenu.Item("UseGap", true).GetValue<bool>())
+            if (!championMenu.Item("UseGap", true).GetValue<bool>())
                 return;
 
             if (_hamEcd == 0 && gapcloser.Sender.IsValidTarget(E2.Range + gapcloser.Sender.BoundingRadius))
@@ -151,13 +131,13 @@ namespace Kor_AIO.Champions
                     R.Cast();
 
                 if (E2.IsReady())
-                    E2.Cast(gapcloser.Sender, packets());
+                    E2.Cast(gapcloser.Sender, Packets());
             }
         }
 
         public override void Interrupter_OnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
         {
-            if (!ConfigManager.championMenu.Item("UseInt", true).GetValue<bool>()) return;
+            if (!championMenu.Item("UseInt", true).GetValue<bool>()) return;
 
             if (unit != null && Player.Distance(unit) < Q2.Range + unit.BoundingRadius && _hamQcd == 0 && _hamEcd == 0)
             {
@@ -165,7 +145,7 @@ namespace Kor_AIO.Champions
                     R.Cast();
 
                 if (Q2.IsReady())
-                    Q2.Cast(unit, packets());
+                    Q2.Cast(unit, Packets());
             }
 
             if (unit != null && (Player.Distance(unit) < E2.Range + unit.BoundingRadius && _hamEcd == 0))
@@ -174,26 +154,26 @@ namespace Kor_AIO.Champions
                     R.Cast();
 
                 if (E2.IsReady())
-                    E2.Cast(unit, packets());
+                    E2.Cast(unit, Packets());
             }
         }
 
         public override void Drawing_OnDraw(EventArgs args)
         {
-            if(isCannon)
+            if (isCannon)
             {
 
             }
         }
-#region ShootQE
+        #region ShootQE
 
         public static Vector2 getParalelVec(Vector3 pos)
         {
-            if (ConfigManager.championMenu.Item("UseParallelE", true).GetValue<bool>())
+            if (championMenu.Item("UseParallelE", true).GetValue<bool>())
             {
                 Random rnd = new Random();
                 int neg = rnd.Next(0, 1);
-                int away = ConfigManager.championMenu.Item("eAway", true).GetValue<Slider>().Value;
+                int away = championMenu.Item("eAway", true).GetValue<Slider>().Value;
                 away = (neg == 1) ? away : -away;
                 var v2 = Vector3.Normalize(pos - Player.ServerPosition) * away;
                 var bom = new Vector2(v2.Y, -v2.X);
@@ -211,18 +191,19 @@ namespace Kor_AIO.Champions
         {
             try
             {
+                
                 if (!E.IsReady() || !Q.IsReady() || !isCannon)
                     return false;
-
+                
                 if (!isCannon && R.IsReady())
                     R.Cast();
-
-                if (ConfigManager.championMenu.Item("usePacket", true).GetValue<bool>())
-                {
-                    Q.Cast(pos.To2D(), packets());
-                    E.Cast(getParalelVec(pos), packets());
-                }
                 
+                if (Packets())
+                {
+                    Q.Cast(pos.To2D(), Packets());
+                    E.Cast(getParalelVec(pos), Packets());
+                }
+
                 else
                 {
                     Vector3 bPos = Player.ServerPosition - Vector3.Normalize(pos - Player.ServerPosition) * 50;
@@ -240,7 +221,7 @@ namespace Kor_AIO.Champions
             return true;
         }
 
-#endregion
+        #endregion
 
         private float _canQcd, _canWcd, _canEcd;
         private float _hamQcd, _hamWcd, _hamEcd;

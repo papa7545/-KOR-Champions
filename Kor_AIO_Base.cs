@@ -16,7 +16,7 @@ namespace Kor_AIO
         public static Menu championMenu = ConfigManager.championMenu;
         public static Menu utilityMenu = ConfigManager.utilityMenu;
         public static Obj_AI_Hero CurrentTarget = null;
-        public static Orbwalking.Orbwalker Orbwalker;
+        
 
         public static List<RenderInfo> RenderCircleList = new List<RenderInfo>();
         public class RenderInfo
@@ -26,28 +26,23 @@ namespace Kor_AIO
         }
 
         //Spells
+        public static SpellSlot IgniteSlot, SmiteSlot;
         public static Spell P, Q, Q2, QCharged, W, W2, E, E2, R, R2;
-
+        
         public static Orbwalking.OrbwalkingMode OrbwalkerMode
         {
-            get { return Orbwalker.ActiveMode; }
+            get { return ConfigManager.Orbwalker.ActiveMode; }
         }
 
         public Kor_AIO_Base()
         {
-            var orbwalkMenu = new Menu("Orbwalker", "Orbwalker");
-            Orbwalker = new Orbwalking.Orbwalker(orbwalkMenu);
-            ConfigManager.championMenu.AddSubMenu(orbwalkMenu);
-
-            ConfigManager.championMenu.SubMenu("Orbwalker").SubMenu("Misc").AddItem(new MenuItem("disMovement", "Disable Movement", true)).SetValue(false);
-            ConfigManager.championMenu.SubMenu("Orbwalker").SubMenu("Misc").AddItem(new MenuItem("disAttack", "Disable Attack", true)).SetValue(false);
             ConfigManager.LoadMenu();
 
             var soundMenu = new Menu("Sounds", "Sounds");
-            ConfigManager.championMenu.AddSubMenu(soundMenu);
+            championMenu.AddSubMenu(soundMenu);
             soundMenu.AddItem(new MenuItem("onLoad", "onLoad")).SetValue(true);
 
-            if (ConfigManager.championMenu.Item("onLoad").GetValue<bool>())
+            if (championMenu.Item("onLoad").GetValue<bool>())
                 new SoundPlayer(Properties.Resources.StartUp).Play();
 
             Game.OnGameUpdate += Orbwalker_Setting;
@@ -72,8 +67,8 @@ namespace Kor_AIO
 
         public virtual void Orbwalker_Setting(EventArgs args)
         {
-            Orbwalker.SetMovement(!ConfigManager.championMenu.SubMenu("Orbwalker").SubMenu("Misc").Item("disMovement", true).GetValue<bool>());
-            Orbwalker.SetAttack(!ConfigManager.championMenu.SubMenu("Orbwalker").SubMenu("Misc").Item("disAttack", true).GetValue<bool>());
+            ConfigManager.Orbwalker.SetMovement(!ConfigManager.championMenu.SubMenu("Orbwalker").SubMenu("Misc").Item("disMovement", true).GetValue<bool>());
+            ConfigManager.Orbwalker.SetAttack(!ConfigManager.championMenu.SubMenu("Orbwalker").SubMenu("Misc").Item("disAttack", true).GetValue<bool>());
         }
 
         public virtual void Drawing_ForRender(EventArgs args)
@@ -124,18 +119,23 @@ namespace Kor_AIO
         #endregion
 
         #region Cast
+        public static bool Packets()
+        {
+            return championMenu.Item("usePacket", true).GetValue<bool>();
+        }
+
         public static void Cast(Spell spell, Obj_AI_Base target, HitChance hitChance = HitChance.VeryHigh, bool aoe = false)
         {
             if (spell.IsReady())
             {
-                spell.Cast(target, false, aoe);
+                spell.Cast(target, Packets(), aoe);
             }
         }
         public static void Cast(Spell spell, Vector3 position, HitChance hitChance = HitChance.VeryHigh, bool aoe = false)
         {
             if (spell.IsReady())
             {
-                spell.Cast(position);
+                spell.Cast(position, Packets());
             }
         }
 
@@ -149,9 +149,10 @@ namespace Kor_AIO
                 else
                     target = TargetSelector.GetTarget(spell.Range, damageType);
 
-                if (target == null) return;
+                if (target == null)
+                    return;
 
-                spell.Cast(target);
+                spell.Cast(target, Packets());
             }
         }
 
