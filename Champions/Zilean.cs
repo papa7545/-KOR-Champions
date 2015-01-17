@@ -21,6 +21,8 @@ namespace Kor_AIO.Champions
         /// </summary>
         /// 
 
+
+
         public Zilean()
         {
             Q = new Spell(SpellSlot.Q, 700);
@@ -53,6 +55,9 @@ namespace Kor_AIO.Champions
             CircleRendering(Player, Q.Range, championMenu.Item("draw_Qrange"), 5);
             CircleRendering(Player, R.Range, championMenu.Item("draw_Rrange"), 5);
 
+
+            IgniteSlot = Player.GetSpellSlot("SummonerDot");
+
         }
         public override void Game_OnGameUpdate(EventArgs args)
         {
@@ -66,6 +71,7 @@ namespace Kor_AIO.Champions
                 KillSteal();
             
             CastR();
+
         }
 
 
@@ -132,6 +138,25 @@ namespace Kor_AIO.Champions
                     {
                         Cast(R, target);
                     }
+                }
+            }
+        }
+
+        public override void Game_Utility(EventArgs args) // ignite
+        {
+            if (utilityMenu.Item("ignite_enable").GetValue<bool>() && Ignite.Slot != SpellSlot.Unknown)
+            {
+                float dmg = 50 + 20 * Player.Level;
+
+                foreach (var hero in ObjectManager.Get<Obj_AI_Hero>()
+                    .Where(hero => !hero.IsDead && Player.ServerPosition.Distance(hero.ServerPosition) < Ignite.Range
+                        && hero.IsEnemy))
+                {
+                    if (hero.Buffs.Any(c => c.Name == "timebombenemybuff"))
+                        dmg += (Q.GetDamage(hero) - hero.HPRegenRate * 2);
+
+                    if (Player.Spellbook.CanUseSpell(Ignite.Slot) == SpellState.Ready && (hero.Health + hero.HPRegenRate * 2) <= dmg)
+                        Player.Spellbook.CastSpell(Ignite.Slot, hero);
                 }
             }
         }
