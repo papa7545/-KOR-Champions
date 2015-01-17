@@ -2,11 +2,9 @@
 using LeagueSharp.Common;
 using SharpDX;
 using System;
-using System.Media;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Media;
 
 namespace Kor_AIO
 {
@@ -43,7 +41,11 @@ namespace Kor_AIO
             soundMenu.AddItem(new MenuItem("onLoad", "onLoad")).SetValue(true);
 
             if (championMenu.Item("onLoad").GetValue<bool>())
-                new SoundPlayer(Properties.Resources.StartUp).Play();
+            {
+                var a = new SoundPlayer(Properties.Resources.StartUp);
+                a.Play();
+                a.Dispose();
+            }
 
             Game.OnGameUpdate += Orbwalker_Setting;
             Game.OnGameUpdate += Game_OnGameUpdate;
@@ -58,7 +60,6 @@ namespace Kor_AIO
             Game.OnGameSendPacket += Game_OnSendPacket;
             Game.OnGameProcessPacket += Game_OnGameProcessPacket;
         }
-
 
         #region Virtual Event
         public virtual void Game_OnGameUpdate(EventArgs args)
