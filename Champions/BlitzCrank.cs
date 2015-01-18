@@ -66,7 +66,7 @@ namespace Kor_AIO.Champions
         public static void KillSteal()
         {
             if (ObjectManager.Get<Obj_AI_Hero>().Any(t => t.IsEnemy && !t.IsDead && t.IsVisible && t.Distance(Player.Position) <= R.Range &&
-                t.Health <= R.GetDamage(t)))
+                t.Health <= R.GetDamage(t) && !t.IsZombie))
                 R.Cast();
         }
     }

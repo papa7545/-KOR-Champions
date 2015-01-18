@@ -38,10 +38,10 @@ namespace Kor_AIO
             ConfigManager.LoadMenu();
 
             var soundMenu = new Menu("Sounds", "Sounds");
-            championMenu.AddSubMenu(soundMenu);
+            utilityMenu.AddSubMenu(soundMenu);
             soundMenu.AddItem(new MenuItem("onLoad", "onLoad")).SetValue(true);
 
-            if (championMenu.Item("onLoad").GetValue<bool>())
+            if (utilityMenu.Item("onLoad").GetValue<bool>())
             {
                 var a = new SoundPlayer(Properties.Resources.StartUp);
                 a.Play();
@@ -136,6 +136,8 @@ namespace Kor_AIO
 
         public static void Cast(Spell spell, Obj_AI_Base target, HitChance hitChance = HitChance.VeryHigh, bool aoe = false)
         {
+            if (target == null)
+                return;
             if (spell.IsReady())
             {
                 spell.Cast(target, Packets(), aoe);
@@ -155,7 +157,7 @@ namespace Kor_AIO
             {
                 Obj_AI_Hero target = null;
                 if (Player.ChampionName == "TwistedFate" && spell.Slot == SpellSlot.Q)
-                    target = TargetSelector.GetTarget(1200, damageType);
+                    target = TargetSelector.GetTarget(1450, damageType);
                 else
                     target = TargetSelector.GetTarget(spell.Range, damageType);
 

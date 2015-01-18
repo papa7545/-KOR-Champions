@@ -34,8 +34,15 @@ namespace Kor_AIO.Champions
             ks_menu.AddItem(new MenuItem("ks_enable", "Enable - Q").SetValue(true));
             championMenu.AddSubMenu(ks_menu);
 
+            championMenu.SubMenu("Harass").AddItem(new MenuItem("harass_Q", "Q").SetValue(true));
+            championMenu.SubMenu("Harass").AddItem(new MenuItem("harass_W", "W").SetValue(true));
+            championMenu.SubMenu("Harass").AddItem(new MenuItem("harass_E", "E").SetValue(false));
+
+            championMenu.SubMenu("Combo").AddItem(new MenuItem("combo_Q", "Q").SetValue(true));
+            championMenu.SubMenu("Combo").AddItem(new MenuItem("combo_W", "W").SetValue(true));
+            championMenu.SubMenu("Combo").AddItem(new MenuItem("combo_E", "E").SetValue(true));
+
             var E_menu = new Menu("E - TimeWarp", "E - TimeWarp");
-            E_menu.AddItem(new MenuItem("E_combo", "Combo").SetValue(true));
             E_menu.AddItem(new MenuItem("E_target", "Target").SetValue(new StringList(new []{"Me","Enemy"})));
             championMenu.AddSubMenu(E_menu);
 
@@ -77,33 +84,30 @@ namespace Kor_AIO.Champions
 
         private static void harass()
         {
-
-      
             if (Q.IsReady())
                 Cast(Q, TargetSelector.DamageType.Magical);
             else if (W.IsReady())
                 Cast(W);
-
         }
 
         private static void combo()
         {
-            if (Q.IsReady())
+            if (Q.IsReady() && championMenu.Item("combo_Q").GetValue<bool>())
                 Cast(Q, TargetSelector.DamageType.Magical);
-            else if (E.IsReady() && championMenu.Item("E_combo").GetValue<bool>())
+            else if (E.IsReady() && championMenu.Item("combo_E").GetValue<bool>())
             {
                 if (championMenu.Item("E_target").GetValue<StringList>().SelectedValue == "Me")
                     Cast(E);
                 else
                     Cast(E, TargetSelector.DamageType.Magical);
             }
-            else if (W.IsReady())
+            else if (W.IsReady() && championMenu.Item("combo_W").GetValue<bool>())
                 Cast(W);
         }
         private static void KillSteal()
         {
             foreach(var t in ObjectManager.Get<Obj_AI_Hero>().Where(t => t.IsEnemy && !t.IsDead && t.IsVisible && t.Distance(Player.Position) <= Q.Range &&
-                t.Health+(t.HPRegenRate*4) <= Q.GetDamage(t) && Q.IsReady()))
+                t.Health+(t.HPRegenRate*4) <= Q.GetDamage(t) && Q.IsReady() && !t.IsZombie))
             {
                 Cast(Q, t);
             }
