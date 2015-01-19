@@ -28,25 +28,25 @@ namespace Kor_AIO.Champions
             E = new Spell(SpellSlot.E, 700);
             R = new Spell(SpellSlot.R, 900);
 
-            var ks_menu = new Menu("KillSteal", "KillSteal");
-            ks_menu.AddItem(new MenuItem("ks_enable", "Enable - Q").SetValue(true));
-            championMenu.AddSubMenu(ks_menu);
-
-            var E_menu = new Menu("E - TimeWarp", "E - TimeWarp");
-            E_menu.AddItem(new MenuItem("E_combo", "Combo").SetValue(true));
-            E_menu.AddItem(new MenuItem("E_target", "Target").SetValue(new StringList(new []{"Me","Enemy"})));
-            championMenu.AddSubMenu(E_menu);
+            championMenu.SubMenu("Combo").AddItem(new MenuItem("E_combo", "Use E in Combo", true).SetValue(true));
+            championMenu.SubMenu("Combo").AddItem(new MenuItem("E_target", "Target").SetValue(new StringList(new[] { "Me", "Enemy" })));
+            championMenu.SubMenu("Harass").AddItem(new MenuItem("harassW", "Use W in Harass").SetValue(true));
+            championMenu.SubMenu("LaneClear").AddItem(new MenuItem("laneclearQ", "Use Q in Lane Clear", true).SetValue(true));
+            championMenu.SubMenu("LaneClear").AddItem(new MenuItem("laneclearW", "Use W in Lane Clear").SetValue(true));
+            championMenu.SubMenu("JungleClear").AddItem(new MenuItem("jungleclearQ", "Use Q in Jungle Clear", true).SetValue(true));
+            championMenu.SubMenu("JungleClear").AddItem(new MenuItem("jungleclearW", "Use W in Jungle Clear").SetValue(true));
+            championMenu.SubMenu("Misc").AddItem(new MenuItem("ks_enable", "Killsteal With Q", true).SetValue(true));
 
             var R_menu = new Menu("R - ChronoShift", "R - ChronoShift");
             R_menu.AddItem(new MenuItem("R_oncombo", "OnCombo").SetValue(true));
             R_menu.AddItem(new MenuItem("R_me", "Me").SetValue(true));
             R_menu.AddItem(new MenuItem("R_ally", "Ally").SetValue(true));
             R_menu.AddItem(new MenuItem("empty", ""));
-            foreach(var temp in ObjectManager.Get<Obj_AI_Hero>().Where(t => t.IsAlly && !t.IsMe))
+            foreach (var temp in ObjectManager.Get<Obj_AI_Hero>().Where(t => t.IsAlly && !t.IsMe))
             {
                 R_menu.AddItem(new MenuItem("R_ally_" + temp.ChampionName, temp.ChampionName).SetValue(true));
             }
-            R_menu.AddItem(new MenuItem("R_HP", "HP(%)").SetValue(new Slider(10,0,100)));
+            R_menu.AddItem(new MenuItem("R_HP", "HP(%)").SetValue(new Slider(10, 0, 100)));
 
             championMenu.AddSubMenu(R_menu);
 
@@ -56,6 +56,8 @@ namespace Kor_AIO.Champions
         }
         public override void Game_OnGameUpdate(EventArgs args)
         {
+            CastR();
+
             if (OrbwalkerMode == Orbwalking.OrbwalkingMode.Combo)
                 combo();
 
@@ -64,44 +66,66 @@ namespace Kor_AIO.Champions
 
             if (championMenu.Item("ks_enable").GetValue<bool>())
                 KillSteal();
-            
-            CastR();
         }
 
 
         private static void harass()
         {
-
-      
             if (Q.IsReady())
                 Cast(Q, TargetSelector.DamageType.Magical);
             else if (W.IsReady())
                 Cast(W);
-
         }
 
         private static void combo()
         {
             if (Q.IsReady())
-                Cast(Q, TargetSelector.DamageType.Magical);
-            else if (E.IsReady() && championMenu.Item("E_combo").GetValue<bool>())
             {
-                if (championMenu.Item("E_target").GetValue<StringList>().SelectedValue == "Me")
+                Cast(Q, TargetSelector.DamageType.Magical);
+            }
+
+            else if (E.IsReady() && championMenu.SubMenu("Combo").Item("E_combo", true).GetValue<bool>())
+            {
+                if (championMenu.Item("E_target", true).GetValue<StringList>().SelectedValue == "Me")
                     Cast(E);
                 else
                     Cast(E, TargetSelector.DamageType.Magical);
             }
+
             else if (W.IsReady())
                 Cast(W);
         }
+
+        private static void combo1()
+        {
+            if (Q.IsReady())
+                Cast(Q, TargetSelector.DamageType.Magical);
+
+            /*
+            if (E.IsReady() && championMenu.SubMenu("Combo").Item("E_combo", true).GetValue<bool>())
+            {
+                if (championMenu.Item("E_target", true).GetValue<StringList>().SelectedValue == "Me")
+                    Cast(E);
+                else
+                    Cast(E, TargetSelector.DamageType.Magical);
+            }*/
+
+            //if (E.IsReady())
+                Cast(E);
+
+            if (!Q.IsReady() && !E.IsReady() && W.IsReady())
+                Cast(W);
+        }
+
         private static void KillSteal()
         {
-            foreach(var t in ObjectManager.Get<Obj_AI_Hero>().Where(t => t.IsEnemy && !t.IsDead && t.IsVisible && t.Distance(Player.Position) <= Q.Range &&
-                t.Health+(t.HPRegenRate*4) <= Q.GetDamage(t) && Q.IsReady()))
+            foreach (var t in ObjectManager.Get<Obj_AI_Hero>().Where(t => t.IsEnemy && !t.IsDead && t.IsVisible && t.Distance(Player.Position) <= Q.Range &&
+                t.Health + (t.HPRegenRate * 4) <= Q.GetDamage(t) && Q.IsReady()))
             {
                 Cast(Q, t);
             }
         }
+
         private static void CastR()
         {
             bool _if = true;
