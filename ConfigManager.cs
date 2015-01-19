@@ -62,8 +62,14 @@ namespace Kor_AIO
             new PotionManager().Load(potionMenu);
             utilityMenu.AddSubMenu(potionMenu);
 
+
+            var IgniteMenu = new Menu("Ignite", "Ignite");
+            IgniteMenu.AddItem(new MenuItem("ignite_enable", "Enable").SetValue(true));
+            utilityMenu.AddSubMenu(IgniteMenu);
+
+
+
             utilityMenu.AddToMainMenu();
-            
         }
     }
 }
