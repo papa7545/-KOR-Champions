@@ -25,49 +25,45 @@ namespace Kor_AIO.Champions
 
         public Zilean()
         {
-            Q = new Spell(SpellSlot.Q, 700);
-            W = new Spell(SpellSlot.W);
-            E = new Spell(SpellSlot.E, 700);
-            R = new Spell(SpellSlot.R, 900);
-
-            var ks_menu = new Menu("KillSteal", "KillSteal");
-            ks_menu.AddItem(new MenuItem("ks_enable", "Enable - Q").SetValue(true));
-            championMenu.AddSubMenu(ks_menu);
-
-            championMenu.SubMenu("Harass").AddItem(new MenuItem("harass_Q", "Q").SetValue(true));
-            championMenu.SubMenu("Harass").AddItem(new MenuItem("harass_W", "W").SetValue(true));
-            championMenu.SubMenu("Harass").AddItem(new MenuItem("harass_E", "E").SetValue(false));
-
-            championMenu.SubMenu("Combo").AddItem(new MenuItem("combo_Q", "Q").SetValue(true));
-            championMenu.SubMenu("Combo").AddItem(new MenuItem("combo_W", "W").SetValue(true));
-            championMenu.SubMenu("Combo").AddItem(new MenuItem("combo_E", "E").SetValue(true));
-
-            var E_menu = new Menu("E - TimeWarp", "E - TimeWarp");
-            E_menu.AddItem(new MenuItem("E_target", "Target").SetValue(new StringList(new []{"Me","Enemy"})));
-            championMenu.AddSubMenu(E_menu);
-
-            var R_menu = new Menu("R - ChronoShift", "R - ChronoShift");
-            R_menu.AddItem(new MenuItem("R_oncombo", "OnCombo").SetValue(true));
-            R_menu.AddItem(new MenuItem("R_me", "Me").SetValue(true));
-            R_menu.AddItem(new MenuItem("R_ally", "Ally").SetValue(true));
-            R_menu.AddItem(new MenuItem("empty", ""));
-            foreach(var temp in ObjectManager.Get<Obj_AI_Hero>().Where(t => t.IsAlly && !t.IsMe))
+            Q = new Spell(SpellSlot.Q, 700f, TargetSelector.DamageType.Physical);
+            W = new Spell(SpellSlot.W, float.MaxValue, TargetSelector.DamageType.Physical);
+            E = new Spell(SpellSlot.E, 700f, TargetSelector.DamageType.Physical);
+            R = new Spell(SpellSlot.R, 900f, TargetSelector.DamageType.Physical);
+            Menu subMenu = new Menu("KillSteal", "KillSteal", false);
+            subMenu.AddItem(new MenuItem("ks_enable", "Enable - Q", false).SetValue<bool>(true));
+            championMenu.AddSubMenu(subMenu);
+            championMenu.SubMenu("Harass").AddItem(new MenuItem("harass_Q", "Q", false).SetValue<bool>(true));
+            championMenu.SubMenu("Harass").AddItem(new MenuItem("harass_W", "W", false).SetValue<bool>(true));
+            championMenu.SubMenu("Harass").AddItem(new MenuItem("harass_E", "E", false).SetValue<bool>(false));
+            championMenu.SubMenu("Combo").AddItem(new MenuItem("combo_Q", "Q", false).SetValue<bool>(true));
+            championMenu.SubMenu("Combo").AddItem(new MenuItem("combo_W", "W", false).SetValue<bool>(true));
+            championMenu.SubMenu("Combo").AddItem(new MenuItem("combo_E", "E", false).SetValue<bool>(true));
+            Menu menu2 = new Menu("E - TimeWarp", "E - TimeWarp", false);
+            menu2.AddItem(new MenuItem("E_target", "Target", false).SetValue<StringList>(new StringList(new string[] { "Me", "Enemy" }, 0)));
+            championMenu.AddSubMenu(menu2);
+            Menu menu3 = new Menu("R - ChronoShift", "R - ChronoShift", false);
+            menu3.AddItem(new MenuItem("R_mode", "Mode", false).SetValue<StringList>(new StringList(new string[] { "DetectDamage", "DetectHP" }, 0)));
+            menu3.AddItem(new MenuItem("R_me", "Me", false).SetValue<bool>(true));
+            menu3.AddItem(new MenuItem("R_ally", "Ally", false).SetValue<bool>(true));
+            menu3.AddItem(new MenuItem("empty", "", false));
+            foreach (Obj_AI_Hero hero in from t in ObjectManager.Get<Obj_AI_Hero>()
+                                         where t.IsAlly && !t.IsMe
+                                         select t)
             {
-                R_menu.AddItem(new MenuItem("R_ally_" + temp.ChampionName, temp.ChampionName).SetValue(true));
+                menu3.AddItem(new MenuItem("R_ally_" + hero.ChampionName, hero.ChampionName, false).SetValue<bool>(true));
             }
-            R_menu.AddItem(new MenuItem("R_HP", "HP(%)").SetValue(new Slider(10,0,100)));
-
-            championMenu.AddSubMenu(R_menu);
-
-            CircleRendering(Player, Q.Range, championMenu.Item("draw_Qrange"), 5);
-            CircleRendering(Player, R.Range, championMenu.Item("draw_Rrange"), 5);
-
-
+            menu3.AddItem(new MenuItem("R_HP", "HP(%)", false).SetValue<Slider>(new Slider(10, 0, 100)));
+            championMenu.AddSubMenu(menu3);
+            CircleRendering(Player, Q.Range, championMenu.Item("draw_Qrange", false), 5);
+            CircleRendering(Player, R.Range, championMenu.Item("draw_Rrange", false), 5);
             IgniteSlot = Player.GetSpellSlot("SummonerDot");
-
         }
+
         public override void Game_OnGameUpdate(EventArgs args)
         {
+
+            CastR();
+
             if (OrbwalkerMode == Orbwalking.OrbwalkingMode.Combo)
                 combo();
 
@@ -77,8 +73,6 @@ namespace Kor_AIO.Champions
             if (championMenu.Item("ks_enable").GetValue<bool>())
                 KillSteal();
             
-            CastR();
-
         }
 
 
@@ -112,36 +106,79 @@ namespace Kor_AIO.Champions
                 Cast(Q, t);
             }
         }
+
         private static void CastR()
         {
-            bool _if = true;
-
-            if (championMenu.Item("R_oncombo").GetValue<bool>())
-                _if = (OrbwalkerMode == Orbwalking.OrbwalkingMode.Combo);
-
-            if (R.IsReady() && _if)
+            if (R.IsReady())
             {
-                var SaveList = new List<Obj_AI_Hero>();
-                if (championMenu.Item("R_me").GetValue<bool>()
-                    && Player.HealthPercentage() <= championMenu.Item("R_HP").GetValue<Slider>().Value)
-                    SaveList.Add(Player);
+                List<Obj_AI_Hero> SaveList = new List<Obj_AI_Hero>();
 
-                if (championMenu.Item("R_ally").GetValue<bool>())
+                if (championMenu.Item("R_mode").GetValue<StringList>().SelectedValue == "DetectHP")
                 {
-                    foreach (var hero in ObjectManager.Get<Obj_AI_Hero>().Where(t => !t.IsDead && !t.IsMe && t.IsAlly
-                        && t.HealthPercentage() <= championMenu.Item("R_HP").GetValue<Slider>().Value
-                        && championMenu.Item("R_ally_" + t.ChampionName).GetValue<bool>()))
+                    if (championMenu.Item("R_me").GetValue<bool>() && (Player.HealthPercentage() <= championMenu.Item("R_HP").GetValue<Slider>().Value))
+                        SaveList.Add(Player);
+
+                    if (championMenu.Item("R_ally").GetValue<bool>())
                     {
-                        SaveList.Add(hero);
+                        foreach (Obj_AI_Hero hero in ObjectManager.Get<Obj_AI_Hero>().Where<Obj_AI_Hero>
+                            (t => !t.IsDead && !t.IsMe && t.IsAlly && 
+                                t.HealthPercentage() <= championMenu.Item("R_HP").GetValue<Slider>().Value
+                                &&
+                                championMenu.Item("R_ally_" + t.ChampionName).GetValue<bool>()))
+                        {
+                            SaveList.Add(hero);
+                        }
+                    }
+                    if (SaveList.Any<Obj_AI_Hero>())
+                    {
+                        foreach (Obj_AI_Hero hero in SaveList.Where(t => t.Distance(Player.Position) <= R.Range))
+                        {
+                            Cast(R, hero);
+                        }
                     }
                 }
-
-                if (SaveList.Any())
+                else
                 {
-                    foreach (var target in SaveList.Where(t => t.Distance(Player.Position) <= R.Range))
+                    if (championMenu.Item("R_me").GetValue<bool>())
+                        SaveList.Add(Player);
+
+                    if (championMenu.Item("R_ally").GetValue<bool>())
                     {
-                        Cast(R, target);
+                        foreach (Obj_AI_Hero hero in ObjectManager.Get<Obj_AI_Hero>().Where<Obj_AI_Hero>(t => !t.IsDead && !t.IsMe && t.IsAlly && 
+                            championMenu.Item("R_ally_" + t.ChampionName).GetValue<bool>()))
+                        {
+                            SaveList.Add(hero);
+                        }
                     }
+                    if (SaveList.Any<Obj_AI_Hero>())
+                    {
+                        foreach (Obj_AI_Hero hero in SaveList.Where(t => t.Distance(Player.Position) <= R.Range))
+                        {
+                            foreach (Obj_SpellMissile missile in ObjectManager.Get<Obj_SpellMissile>().Where(missile => missile.SpellCaster.IsValid<Obj_AI_Hero>() && missile.SpellCaster.IsEnemy))
+                            {
+                                float num = missile.StartPosition.Distance(hero.Position) / missile.SData.MissileSpeed;
+                                float num2 = missile.SData.LineWidth / hero.MoveSpeed;
+                                if (num > num2)
+                                    break;
+
+                                if (missile.SpellCaster.GetDamageSpell(hero, missile.SData.Name).CalculatedDamage >= hero.Health)
+                                    Cast(R, hero);
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        public override void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs args)
+        {
+            if ((unit.IsValid<Obj_AI_Hero>() && args.Target.IsValid<Obj_AI_Hero>()) && (championMenu.Item("R_mode", false).GetValue<StringList>().SelectedValue != "DetectDamage"))
+            {
+                Obj_AI_Hero caster = (Obj_AI_Hero)unit;
+                Obj_AI_Hero target = (Obj_AI_Hero)args.Target;
+                if ((unit.IsValid<Obj_AI_Hero>() && target.IsAlly) && (caster.IsEnemy && (caster.GetDamageSpell(target, args.SData.Name).CalculatedDamage >= target.Health)))
+                {
+                    Cast(R, target);
                 }
             }
         }
