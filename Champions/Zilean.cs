@@ -157,7 +157,11 @@ namespace Kor_AIO.Champions
                         && hero.IsEnemy))
                 {
                     if (hero.Buffs.Any(c => c.Name == "timebombenemybuff"))
-                        dmg += (Q.GetDamage(hero) - hero.HPRegenRate * 2);
+                    {
+                        if (Q.GetDamage(hero) - hero.HPRegenRate * 2 >= hero.Health)
+                            return;
+                        dmg = (Q.GetDamage(hero) - hero.HPRegenRate * 2);
+                    }
 
                     if (Player.Spellbook.CanUseSpell(Ignite.Slot) == SpellState.Ready && (hero.Health + hero.HPRegenRate * 2) <= dmg)
                         Player.Spellbook.CastSpell(Ignite.Slot, hero);
