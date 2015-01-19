@@ -2,9 +2,11 @@
 using LeagueSharp.Common;
 using SharpDX;
 using System;
+using System.Media;
 using System.Collections.Generic;
 using System.Linq;
-using System.Media;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Kor_AIO
 {
@@ -25,8 +27,7 @@ namespace Kor_AIO
 
         //Spells
         public static SpellSlot IgniteSlot, SmiteSlot;
-        public static Spell Ignite { get { return new Spell(IgniteSlot, 600); }}
-        public static Spell P, Q, Q2, QCharged, W, W2, E, E2, R, R2,Smite;
+        public static Spell P, Q, Q2, QCharged, W, W2, E, E2, R, R2;
         
         public static Orbwalking.OrbwalkingMode OrbwalkerMode
         {
@@ -38,18 +39,13 @@ namespace Kor_AIO
             ConfigManager.LoadMenu();
 
             var soundMenu = new Menu("Sounds", "Sounds");
-            utilityMenu.AddSubMenu(soundMenu);
+            championMenu.AddSubMenu(soundMenu);
             soundMenu.AddItem(new MenuItem("onLoad", "onLoad")).SetValue(true);
 
-            if (utilityMenu.Item("onLoad").GetValue<bool>())
-            {
-                var a = new SoundPlayer(Properties.Resources.StartUp);
-                a.Play();
-                a.Dispose();
-            }
+            if (championMenu.Item("onLoad").GetValue<bool>())
+                new SoundPlayer(Properties.Resources.StartUp).Play();
 
             Game.OnGameUpdate += Orbwalker_Setting;
-            Game.OnGameUpdate += Game_Utility;
             Game.OnGameUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
             Drawing.OnDraw += Drawing_ForRender;
@@ -63,31 +59,18 @@ namespace Kor_AIO
             Game.OnGameProcessPacket += Game_OnGameProcessPacket;
         }
 
+
         #region Virtual Event
         public virtual void Game_OnGameUpdate(EventArgs args)
         {
         }
-        public virtual void Game_Utility(EventArgs args)
-        {
-            if (utilityMenu.Item("ignite_enable").GetValue<bool>() && Ignite.Slot != SpellSlot.Unknown)
-            {
-                float dmg = 50 + 20 * Player.Level;
-                foreach (var hero in ObjectManager.Get<Obj_AI_Hero>()
-                    .Where(hero => hero != null && hero.IsValid && !hero.IsDead && Player.ServerPosition.Distance(hero.ServerPosition) < Ignite.Range
-                        && !hero.IsMe && !hero.IsAlly))
-                {
-                    if (Player.Spellbook.CanUseSpell(Ignite.Slot) == SpellState.Ready && (hero.Health + hero.HPRegenRate * 2) <= dmg)
-                    {
-                        Player.Spellbook.CastSpell(Ignite.Slot, hero);
-                    }
-                }
-            }
-        }
+
         public virtual void Orbwalker_Setting(EventArgs args)
         {
             ConfigManager.Orbwalker.SetMovement(!ConfigManager.championMenu.SubMenu("Orbwalker").SubMenu("Misc").Item("disMovement", true).GetValue<bool>());
             ConfigManager.Orbwalker.SetAttack(!ConfigManager.championMenu.SubMenu("Orbwalker").SubMenu("Misc").Item("disAttack", true).GetValue<bool>());
         }
+
         public virtual void Drawing_ForRender(EventArgs args)
         {
             if(RenderCircleList.Any())
@@ -105,24 +88,31 @@ namespace Kor_AIO
         public virtual void Drawing_OnDrawEndSence(EventArgs args)
         {
         }
+
         public virtual void Interrupter_OnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
         {
         }
+
         public virtual void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
         }
+
         public virtual void GameObject_OnCreate(GameObject sender, EventArgs args)
         {
         }
+
         public virtual void GameObject_OnDelete(GameObject sender, EventArgs args)
         {
         }
+
         public virtual void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs args)
         {
         }
+
         public virtual void Game_OnSendPacket(GamePacketEventArgs args)
         {
         }
+
         public virtual void Game_OnGameProcessPacket(GamePacketEventArgs args)
         {
         }
@@ -136,8 +126,6 @@ namespace Kor_AIO
 
         public static void Cast(Spell spell, Obj_AI_Base target, HitChance hitChance = HitChance.VeryHigh, bool aoe = false)
         {
-            if (target == null)
-                return;
             if (spell.IsReady())
             {
                 spell.Cast(target, Packets(), aoe);
@@ -157,7 +145,7 @@ namespace Kor_AIO
             {
                 Obj_AI_Hero target = null;
                 if (Player.ChampionName == "TwistedFate" && spell.Slot == SpellSlot.Q)
-                    target = TargetSelector.GetTarget(1450, damageType);
+                    target = TargetSelector.GetTarget(1200, damageType);
                 else
                     target = TargetSelector.GetTarget(spell.Range, damageType);
 

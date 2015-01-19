@@ -37,9 +37,6 @@ namespace Kor_AIO.Champions
 
             Q.SetSkillshot(1f, 75f, float.MaxValue, false, SkillshotType.SkillshotCircle);
             W.SetSkillshot(0.6f, 200f, float.MaxValue, false, SkillshotType.SkillshotCircle);
-
-            CircleRendering(Player, Q.Range, championMenu.Item("draw_Qrange"), 5);
-            CircleRendering(Player, E.Range, championMenu.Item("draw_Erange"), 5);
         }
 
         public override void Game_OnGameUpdate(EventArgs args)

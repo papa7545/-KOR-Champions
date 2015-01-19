@@ -69,7 +69,7 @@ namespace Kor_AIO.Champions
 
         public static void harass()
         {
-            Cast(Q, TargetSelector.DamageType.Magical);
+            Kor_AIO_Base.Cast(Q, TargetSelector.DamageType.Magical);
         }
 
         public static void combo()

@@ -58,7 +58,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Champions\Akali.cs" />
-    <Compile Include="Champions\Karthus.cs" />
     <Compile Include="Champions\Zilean.cs" />
     <Compile Include="Champions\Blitzcrank.cs" />
     <Compile Include="Champions\Cassiopeia.cs" />
