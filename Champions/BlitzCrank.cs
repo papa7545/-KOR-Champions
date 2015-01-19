@@ -33,8 +33,8 @@ namespace Kor_AIO.Champions
             ks_menu.AddItem(new MenuItem("ks_enable", "Enable - R").SetValue(true));
             ConfigManager.championMenu.AddSubMenu(ks_menu);
 
-            CircleRendering(Player, Q.Range, ConfigManager.championMenu.Item("draw_Qrange"), 5);
-            CircleRendering(Player, R.Range, ConfigManager.championMenu.Item("draw_Rrange"), 5);
+            CircleRendering(Player, Q.Range, championMenu.Item("draw_Qrange"), 5);
+            CircleRendering(Player, R.Range, championMenu.Item("draw_Rrange"), 5);
 
 
         }
@@ -49,7 +49,7 @@ namespace Kor_AIO.Champions
             if (ObjectManager.Get<Obj_AI_Hero>().Any(t=> t.HasBuff("RocketGrab") && t.IsEnemy && t.IsVisible && !t.IsDead))
                 E.Cast();
 
-            if (ConfigManager.championMenu.Item("ks_enable").GetValue<bool>())
+            if (championMenu.Item("ks_enable").GetValue<bool>())
                 KillSteal();
         }
 
@@ -66,7 +66,7 @@ namespace Kor_AIO.Champions
         public static void KillSteal()
         {
             if (ObjectManager.Get<Obj_AI_Hero>().Any(t => t.IsEnemy && !t.IsDead && t.IsVisible && t.Distance(Player.Position) <= R.Range &&
-                t.Health <= R.GetDamage(t)))
+                t.Health <= R.GetDamage(t) && !t.IsZombie))
                 R.Cast();
         }
     }
