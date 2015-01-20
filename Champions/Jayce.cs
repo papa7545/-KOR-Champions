@@ -43,13 +43,12 @@ namespace Kor_AIO.Champions
         private void LoadMenu()
         {
             //Combo Menu:
-            championMenu.SubMenu("Combo").AddItem(new MenuItem("ComboUseQ", "Use Cannon Q", true).SetValue(true));
-            championMenu.SubMenu("Combo").AddItem(new MenuItem("ComboUseW", "Use Cannon W", true).SetValue(true));
-            championMenu.SubMenu("Combo").AddItem(new MenuItem("ComboUseE", "Use Cannon E", true).SetValue(true));
-            championMenu.SubMenu("Combo").AddItem(new MenuItem("ComboUseQHammer", "Use Hammer Q", true).SetValue(true));
-            championMenu.SubMenu("Combo").AddItem(new MenuItem("ComboUseWHammer", "Use Hammer W", true).SetValue(true));
-            championMenu.SubMenu("Combo").AddItem(new MenuItem("ComboUseEHammer", "Use Hammer E", true).SetValue(true));
-            championMenu.SubMenu("Combo").AddItem(new MenuItem("ComboUseR", "Use R to Switch", true).SetValue(true));
+            championMenu.SubMenu("Combo").AddItem(new MenuItem("comboUseQCannon", "Use Cannon Q", true).SetValue(true));
+            championMenu.SubMenu("Combo").AddItem(new MenuItem("comboUseWCannon", "Use Cannon W", true).SetValue(true));
+            championMenu.SubMenu("Combo").AddItem(new MenuItem("comboUseECannon", "Use Cannon E", true).SetValue(true));
+            championMenu.SubMenu("Combo").AddItem(new MenuItem("comboUseQHammer", "Use Hammer Q", true).SetValue(true));
+            championMenu.SubMenu("Combo").AddItem(new MenuItem("comboUseWHammer", "Use Hammer W", true).SetValue(true));
+            championMenu.SubMenu("Combo").AddItem(new MenuItem("comboUseEHammer", "Use Hammer E", true).SetValue(true));
 
             //Harass menu:
             championMenu.SubMenu("Harass").AddItem(new MenuItem("HarassUseQ", "Use Cannon Q", true).SetValue(true));
@@ -69,11 +68,18 @@ namespace Kor_AIO.Champions
 
             //Misc Menu:
             championMenu.SubMenu("Misc").AddItem(new MenuItem("shootQE", "Shoot QE", true).SetValue(new KeyBind('T', KeyBindType.Press)));
-            championMenu.SubMenu("Misc").AddItem(new MenuItem("useEscape", "Escape", true).SetValue(new KeyBind('~', KeyBindType.Press)));
-            championMenu.SubMenu("Misc").AddItem(new MenuItem("UseParallelE", "Use Parallel E", true).SetValue(true));
+            championMenu.SubMenu("Misc").AddItem(new MenuItem("useEscape", "Escape", true).SetValue(new KeyBind(192, KeyBindType.Press)));
+            championMenu.SubMenu("Misc").AddItem(new MenuItem("useParallelE", "Use Parallel E", true).SetValue(true));
             championMenu.SubMenu("Misc").AddItem(new MenuItem("eAway", "Gate Distance", true).SetValue(new Slider(20, 3, 60)));
-            championMenu.SubMenu("Misc").AddItem(new MenuItem("UseQAlways", "Use Q When E onCD", true).SetValue(true));
+            championMenu.SubMenu("Misc").AddItem(new MenuItem("useQwhenEonCD", "Use Q When E on CD", true).SetValue(true));
             championMenu.SubMenu("Misc").AddItem(new MenuItem("autoE", "EPushInCombo HP < %", true).SetValue(new Slider(20)));
+
+            //Draw Menu:
+            championMenu.SubMenu("Drawings").AddItem(new MenuItem("drawCannonQ", "Draw Cannon Q", true).SetValue(new Circle(true, Color.Red)));
+            championMenu.SubMenu("Drawings").AddItem(new MenuItem("drawCannonQCharged", "Draw Cannon Q Charged", true).SetValue(new Circle(true, Color.Blue)));
+            championMenu.SubMenu("Drawings").AddItem(new MenuItem("drawHammerQ", "Draw Hammer Q", true).SetValue(new Circle(true, Color.Green)));
+            championMenu.SubMenu("Drawings").AddItem(new MenuItem("drawHammerE", "Draw Hammer E", true).SetValue(new Circle(true, Color.White)));
+
         }
 
         public static void checkForm()
@@ -198,29 +204,38 @@ namespace Kor_AIO.Champions
         {
             if (isCannon)
             {
-                if (championMenu.SubMenu("Drawings").Item("draw_Qrange").GetValue<bool>())
+                if (championMenu.SubMenu("Drawings").Item("drawCannonQ", true).GetValue<Circle>().Active)
                 {
                     if (_canQcd == 0)
-                        Render.Circle.DrawCircle(Player.Position, Q.Range, Color.Aqua);
+                        Render.Circle.DrawCircle(Player.Position, Q.Range, championMenu.SubMenu("Drawings").Item("drawCannonQ", true).GetValue<Circle>().Color);
                     else
                         Render.Circle.DrawCircle(Player.Position, Q.Range, Color.Red);
                 }
 
-                if ((_canQcd == 0) && (_canEcd == 0))
-                    Render.Circle.DrawCircle(Player.Position, QCharged.Range, Color.Aqua);
-                else
-                    Render.Circle.DrawCircle(Player.Position, QCharged.Range, Color.Red);
+                if (championMenu.SubMenu("Drawings").Item("drawCannonQCharged", true).GetValue<Circle>().Active)
+                {
+                    if ((_canQcd == 0) && (_canEcd == 0))
+                        Render.Circle.DrawCircle(Player.Position, QCharged.Range, championMenu.SubMenu("Drawings").Item("drawCannonQCharged", true).GetValue<Circle>().Color);
+                    else
+                        Render.Circle.DrawCircle(Player.Position, QCharged.Range, Color.Red);
+                }
             }
             else
             {
-                if (_hamQcd == 0)
-                    Render.Circle.DrawCircle(Player.Position, Q2.Range, Color.Aqua);
-                else
-                    Render.Circle.DrawCircle(Player.Position, Q2.Range, Color.Red);
-                if (_hamEcd == 0)
-                    Render.Circle.DrawCircle(Player.Position, E2.Range, Color.Aqua);
-                else
-                    Render.Circle.DrawCircle(Player.Position, E2.Range, Color.Red);
+                if (championMenu.SubMenu("Drawings").Item("drawHammerQ", true).GetValue<Circle>().Active)
+                {
+                    if (_hamQcd == 0)
+                        Render.Circle.DrawCircle(Player.Position, Q2.Range, championMenu.SubMenu("Drawings").Item("drawHammerQ", true).GetValue<Circle>().Color);
+                    else
+                        Render.Circle.DrawCircle(Player.Position, Q2.Range, Color.Red);
+                }
+                if (championMenu.SubMenu("Drawings").Item("drawHammerE", true).GetValue<Circle>().Active)
+                {
+                    if (_hamEcd == 0)
+                        Render.Circle.DrawCircle(Player.Position, E2.Range, championMenu.SubMenu("Drawings").Item("drawHammerE", true).GetValue<Circle>().Color);
+                    else
+                        Render.Circle.DrawCircle(Player.Position, E2.Range, Color.Red);
+                }
             }
         }
 
@@ -228,7 +243,7 @@ namespace Kor_AIO.Champions
 
         public static Vector2 getParalelVec(Vector3 pos)
         {
-            if (championMenu.Item("UseParallelE", true).GetValue<bool>())
+            if (championMenu.Item("useParallelE", true).GetValue<bool>())
             {
                 Random rnd = new Random();
                 int neg = rnd.Next(0, 1);
