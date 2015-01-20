@@ -11,10 +11,8 @@ namespace Kor_AIO.Champions
 {
     class Jayce : Kor_AIO_Base
     {
-
-
         public static bool isCannon = true;
-
+        private static int _lastMovement;
 
         public Jayce()
         {
@@ -42,7 +40,7 @@ namespace Kor_AIO.Champions
 
         private void LoadMenu()
         {
-            //Combo Menu:
+            //Combo
             championMenu.SubMenu("Combo").AddItem(new MenuItem("comboUseQCannon", "Use Cannon Q", true).SetValue(true));
             championMenu.SubMenu("Combo").AddItem(new MenuItem("comboUseWCannon", "Use Cannon W", true).SetValue(true));
             championMenu.SubMenu("Combo").AddItem(new MenuItem("comboUseECannon", "Use Cannon E", true).SetValue(true));
@@ -50,23 +48,23 @@ namespace Kor_AIO.Champions
             championMenu.SubMenu("Combo").AddItem(new MenuItem("comboUseWHammer", "Use Hammer W", true).SetValue(true));
             championMenu.SubMenu("Combo").AddItem(new MenuItem("comboUseEHammer", "Use Hammer E", true).SetValue(true));
 
-            //Harass menu:
+            //Harass
             championMenu.SubMenu("Harass").AddItem(new MenuItem("HarassUseQ", "Use Cannon Q", true).SetValue(true));
             championMenu.SubMenu("Harass").AddItem(new MenuItem("HarassUseW", "Use Cannon W", true).SetValue(true));
             championMenu.SubMenu("Harass").AddItem(new MenuItem("manaH", "Mana > %", true).SetValue(new Slider(40)));
 
-            //Lane Clear menu:
+            //Lane Clear
             championMenu.SubMenu("LaneClear").AddItem(new MenuItem("LaneClearUseQ", "Use Cannon Q", true).SetValue(true));
             championMenu.SubMenu("LaneClear").AddItem(new MenuItem("LaneClearUseW", "Use Cannon W", true).SetValue(true));
             championMenu.SubMenu("LaneClear").AddItem(new MenuItem("LaneClearUseE", "Use Cannon E", true).SetValue(true));
             championMenu.SubMenu("LaneClear").AddItem(new MenuItem("LaneClearMana", "Mana > %", true).SetValue(new Slider(40)));
 
-            //Jungle Clear menu:
+            //Jungle Clear
             championMenu.SubMenu("JungleClear").AddItem(new MenuItem("JungleClearUseQ", "Use Cannon Q", true).SetValue(true));
             championMenu.SubMenu("JungleClear").AddItem(new MenuItem("JungleClearUseW", "Use Cannon W", true).SetValue(true));
             championMenu.SubMenu("JungleClear").AddItem(new MenuItem("JungleClearMana", "Mana > %", true).SetValue(new Slider(40)));
 
-            //Misc Menu:
+            //Misc
             championMenu.SubMenu("Misc").AddItem(new MenuItem("shootQE", "Shoot QE", true).SetValue(new KeyBind('T', KeyBindType.Press)));
             championMenu.SubMenu("Misc").AddItem(new MenuItem("useEscape", "Escape", true).SetValue(new KeyBind(192, KeyBindType.Press)));
             championMenu.SubMenu("Misc").AddItem(new MenuItem("useParallelE", "Use Parallel E", true).SetValue(true));
@@ -74,12 +72,11 @@ namespace Kor_AIO.Champions
             championMenu.SubMenu("Misc").AddItem(new MenuItem("useQwhenEonCD", "Use Q When E on CD", true).SetValue(true));
             championMenu.SubMenu("Misc").AddItem(new MenuItem("autoE", "EPushInCombo HP < %", true).SetValue(new Slider(20)));
 
-            //Draw Menu:
+            //Draw
             championMenu.SubMenu("Drawings").AddItem(new MenuItem("drawCannonQ", "Draw Cannon Q", true).SetValue(new Circle(true, Color.Red)));
             championMenu.SubMenu("Drawings").AddItem(new MenuItem("drawCannonQCharged", "Draw Cannon Q Charged", true).SetValue(new Circle(true, Color.Blue)));
             championMenu.SubMenu("Drawings").AddItem(new MenuItem("drawHammerQ", "Draw Hammer Q", true).SetValue(new Circle(true, Color.Green)));
             championMenu.SubMenu("Drawings").AddItem(new MenuItem("drawHammerE", "Draw Hammer E", true).SetValue(new Circle(true, Color.White)));
-
         }
 
         public static void checkForm()
@@ -97,7 +94,7 @@ namespace Kor_AIO.Champions
 
             if (OrbwalkerMode == Orbwalking.OrbwalkingMode.Combo)
             {
-                //Combo();
+                Combo();
             }
 
             if (OrbwalkerMode == Orbwalking.OrbwalkingMode.Mixed)
@@ -112,20 +109,7 @@ namespace Kor_AIO.Champions
 
             if (championMenu.Item("useEscape", true).GetValue<KeyBind>().Active)
             {
-                MoveTo(Game.CursorPos);
-
-                if (_canEcd == 0)
-                {
-                    if (isCannon)
-                        E.Cast(getParalelVec(Game.CursorPos), Packets());
-                    else
-                        R.Cast();
-                }
-                else
-                {
-                    if (R.IsReady())
-                        R.Cast();
-                }
+                Escape();
             }
 
             if (OrbwalkerMode == Orbwalking.OrbwalkingMode.LaneClear)
@@ -134,23 +118,39 @@ namespace Kor_AIO.Champions
             }
         }
 
-        private static int _lastMovement;
-        private static void MoveTo(Vector3 position)
+        private static void Combo()
+        {
+
+        }
+
+        private static void Escape()
         {
             if (Environment.TickCount - _lastMovement < 80)
                 return;
 
             _lastMovement = Environment.TickCount;
 
-            if (Player.ServerPosition.Distance(position) < 50)
+            if (Player.ServerPosition.Distance(Game.CursorPos) < 50)
             {
                 if (Player.Path.Count() > 1)
                     Player.IssueOrder(GameObjectOrder.HoldPosition, Player.Position);
                 return;
             }
-            var point = Player.ServerPosition +
-            300 * (position.To2D() - Player.ServerPosition.To2D()).Normalized().To3D();
+            var point = Player.ServerPosition + 300 * (Game.CursorPos.To2D() - Player.ServerPosition.To2D()).Normalized().To3D();
             Player.IssueOrder(GameObjectOrder.MoveTo, point);
+
+            if (_canEcd == 0)
+            {
+                if (isCannon)
+                    E.Cast(getParalelVec(Game.CursorPos), Packets());
+                else
+                    R.Cast();
+            }
+            else
+            {
+                if (R.IsReady())
+                    R.Cast();
+            }
         }
 
         public override void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs args)
@@ -297,20 +297,22 @@ namespace Kor_AIO.Champions
 
         #endregion
 
-        private float _canQcd, _canWcd, _canEcd, _canRcd;
-        private float _hamQcd, _hamWcd, _hamEcd, hamRcd;
-        private float _canQcdRem, _canWcdRem, _canEcdRem, _canRcdRem;
-        private float _hamQcdRem, _hamWcdRem, _hamEcdRem, _hamRcdRem;
+        #region CD Manager
 
-        private readonly float[] _cannonQcd = { 8, 8, 8, 8, 8 };
-        private readonly float[] _cannonWcd = { 14, 12, 10, 8, 6 };
-        private readonly float[] _cannonEcd = { 16, 16, 16, 16, 16 };
+        private static float _canQcd, _canWcd, _canEcd, _canRcd;
+        private static float _hamQcd, _hamWcd, _hamEcd, hamRcd;
+        private static float _canQcdRem, _canWcdRem, _canEcdRem, _canRcdRem;
+        private static float _hamQcdRem, _hamWcdRem, _hamEcdRem, _hamRcdRem;
 
-        private readonly float[] _hammerQcd = { 16, 14, 12, 10, 8 };
-        private readonly float[] _hammerWcd = { 10, 10, 10, 10, 10 };
-        private readonly float[] _hammerEcd = { 14, 13, 12, 11, 10 };
+        private static readonly float[] _cannonQcd = { 8, 8, 8, 8, 8 };
+        private static readonly float[] _cannonWcd = { 14, 12, 10, 8, 6 };
+        private static readonly float[] _cannonEcd = { 16, 16, 16, 16, 16 };
 
-        private void ProcessCoolDowns()
+        private static readonly float[] _hammerQcd = { 16, 14, 12, 10, 8 };
+        private static readonly float[] _hammerWcd = { 10, 10, 10, 10, 10 };
+        private static readonly float[] _hammerEcd = { 14, 13, 12, 11, 10 };
+
+        private static void ProcessCoolDowns()
         {
             _canQcd = ((_canQcdRem - Game.Time) > 0) ? (_canQcdRem - Game.Time) : 0;
             _canWcd = ((_canWcdRem - Game.Time) > 0) ? (_canWcdRem - Game.Time) : 0;
@@ -320,12 +322,12 @@ namespace Kor_AIO.Champions
             _hamEcd = ((_hamEcdRem - Game.Time) > 0) ? (_hamEcdRem - Game.Time) : 0;
         }
 
-        private float CalculateCD(float time)
+        private static float CalculateCD(float time)
         {
             return time + (time * Player.PercentCooldownMod);
         }
 
-        private void GetCooldowns(GameObjectProcessSpellCastEventArgs spell)
+        private static void GetCooldowns(GameObjectProcessSpellCastEventArgs spell)
         {
             if (isCannon)
             {
@@ -346,6 +348,6 @@ namespace Kor_AIO.Champions
                     _hamEcdRem = Game.Time + CalculateCD(_hammerEcd[E.Level - 1]);
             }
         }
-
+        #endregion
     }
 }
