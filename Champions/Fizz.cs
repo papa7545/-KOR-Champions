@@ -46,11 +46,6 @@ namespace Kor_AIO.Champions
 
             }
 
-            if (ConfigManager.championMenu.Item("ShroudSelf", true).GetValue<KeyBind>().Active)
-            {
-                W.Cast(Player.Position);
-            }
-
             if (OrbwalkerMode == Orbwalking.OrbwalkingMode.LaneClear)
             {
 

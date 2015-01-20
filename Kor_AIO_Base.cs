@@ -175,7 +175,7 @@ namespace Kor_AIO
         }
         #endregion
 
-        #region LiastHit
+        #region LastHit
 
         public static void Lasthit_Spell(Spell LastHitSpell, bool boolean = true, Obj_AI_Minion target = null)
         {

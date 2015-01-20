@@ -12,7 +12,7 @@ namespace Kor_AIO
 {
     internal class ConfigManager
     {
-        public static string championMenuName = "[Kor AIO] "  + ObjectManager.Player.ChampionName;
+        public static string championMenuName = "[Kor AIO] " + ObjectManager.Player.ChampionName;
         public static string UtilityMenuName = "[Kor AIO] Utility";
         public static Menu championMenu = new Menu(championMenuName, championMenuName, true);
         public static Menu utilityMenu = new Menu(UtilityMenuName, UtilityMenuName, true);
@@ -20,6 +20,25 @@ namespace Kor_AIO
         public static Orbwalking.Orbwalker Orbwalker;
 
         public static void LoadMenu()
+        {
+            LoadUtilityMenu();
+            LoadChampionMenu();
+        }
+
+        public static void LoadUtilityMenu()
+        {
+            var potionMenu = new Menu("Potion Control", "Potion");
+            new PotionManager().Load(potionMenu);
+            utilityMenu.AddSubMenu(potionMenu);
+
+            var IgniteMenu = new Menu("Ignite", "Ignite");
+            IgniteMenu.AddItem(new MenuItem("ignite_enable", "Enable").SetValue(true));
+            utilityMenu.AddSubMenu(IgniteMenu);
+
+            utilityMenu.AddToMainMenu();
+        }
+
+        public static void LoadChampionMenu()
         {
             var orbwalkMenu = new Menu("Orbwalker", "Orbwalker");
             Orbwalker = new Orbwalking.Orbwalker(orbwalkMenu);
@@ -45,31 +64,14 @@ namespace Kor_AIO
 
             var misc = new Menu("Misc", "Misc");
             misc.AddItem(new MenuItem("usePacket", "Packets", true)).SetValue(true);
+            misc.AddItem(new MenuItem("useInterrupt", "Use Interrupt", true).SetValue(true));
+            misc.AddItem(new MenuItem("useAntiGapCloser", "Use Anti-GapCloser", true).SetValue(true));
             championMenu.AddSubMenu(misc);
 
             var DrawMenu = new Menu("Drawings", "Draw");
             championMenu.AddSubMenu(DrawMenu);
 
-            DrawMenu.AddItem(new MenuItem("draw_Qrange","Draw Q").SetValue(new Circle(true, Color.Red)));
-            DrawMenu.AddItem(new MenuItem("draw_Wrange", "Draw W").SetValue(new Circle(true, Color.Blue)));
-            DrawMenu.AddItem(new MenuItem("draw_Erange", "Draw E").SetValue(new Circle(true, Color.Green)));
-            DrawMenu.AddItem(new MenuItem("draw_Rrange", "Draw R").SetValue(new Circle(true, Color.White)));
-
             championMenu.AddToMainMenu();
-
-
-            var potionMenu = new Menu("Potion Control", "Potion");
-            new PotionManager().Load(potionMenu);
-            utilityMenu.AddSubMenu(potionMenu);
-
-
-            var IgniteMenu = new Menu("Ignite", "Ignite");
-            IgniteMenu.AddItem(new MenuItem("ignite_enable", "Enable").SetValue(true));
-            utilityMenu.AddSubMenu(IgniteMenu);
-
-
-
-            utilityMenu.AddToMainMenu();
         }
     }
 }

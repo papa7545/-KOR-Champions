@@ -30,6 +30,13 @@ namespace Kor_AIO.Champions
             E = new Spell(SpellSlot.E, 1050);
             R = new Spell(SpellSlot.R, 3000);
 
+
+            championMenu.SubMenu("Drawings").AddItem(new MenuItem("draw_Qrange", "Draw Q").SetValue(new Circle(true, Color.Red)));
+            championMenu.SubMenu("Drawings").AddItem(new MenuItem("draw_Wrange", "Draw W").SetValue(new Circle(true, Color.Blue)));
+            championMenu.SubMenu("Drawings").AddItem(new MenuItem("draw_Erange", "Draw E").SetValue(new Circle(true, Color.Green)));
+            championMenu.SubMenu("Drawings").AddItem(new MenuItem("draw_Rrange", "Draw R").SetValue(new Circle(true, Color.White)));
+
+
             Q.SetSkillshot(0.6f, 100f, float.MaxValue, false, SkillshotType.SkillshotLine);
             Q.SetCharged("XerathArcanopulseChargeUp", "XerathArcanopulseChargeUp", 750-50, 1550, 1.5f);
             W.SetSkillshot(0.7f, 200f, float.MaxValue, false, SkillshotType.SkillshotCircle);

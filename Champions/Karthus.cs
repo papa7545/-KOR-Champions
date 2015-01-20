@@ -6,6 +6,7 @@ using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
 using System.Text;
+using Color = System.Drawing.Color;
 #endregion
 
 namespace Kor_AIO.Champions
@@ -45,6 +46,12 @@ namespace Kor_AIO.Champions
 
             championMenu.SubMenu("LaneClear").AddItem(new MenuItem("clear_Q", "Q").SetValue(true));
             championMenu.SubMenu("LaneClear").AddItem(new MenuItem("clear_E", "E").SetValue(true));
+
+
+            championMenu.SubMenu("Drawings").AddItem(new MenuItem("draw_Qrange", "Draw Q").SetValue(new Circle(true, Color.Red)));
+            championMenu.SubMenu("Drawings").AddItem(new MenuItem("draw_Wrange", "Draw W").SetValue(new Circle(true, Color.Blue)));
+            championMenu.SubMenu("Drawings").AddItem(new MenuItem("draw_Erange", "Draw E").SetValue(new Circle(true, Color.Green)));
+            championMenu.SubMenu("Drawings").AddItem(new MenuItem("draw_Rrange", "Draw R").SetValue(new Circle(true, Color.White)));
 
             var Emenu = new Menu("E - Defile", "E - Defile");
             Emenu.AddItem(new MenuItem("e_smartcast", "SmartCast").SetValue(true));

@@ -21,14 +21,18 @@ namespace Kor_AIO.Champions
         /// </summary>
         /// 
 
-
-
         public Zilean()
         {
             Q = new Spell(SpellSlot.Q, 700f, TargetSelector.DamageType.Physical);
             W = new Spell(SpellSlot.W, float.MaxValue, TargetSelector.DamageType.Physical);
             E = new Spell(SpellSlot.E, 700f, TargetSelector.DamageType.Physical);
             R = new Spell(SpellSlot.R, 900f, TargetSelector.DamageType.Physical);
+
+            championMenu.SubMenu("Drawings").AddItem(new MenuItem("draw_Qrange", "Draw Q").SetValue(new Circle(true, Color.Red)));
+            championMenu.SubMenu("Drawings").AddItem(new MenuItem("draw_Wrange", "Draw W").SetValue(new Circle(true, Color.Blue)));
+            championMenu.SubMenu("Drawings").AddItem(new MenuItem("draw_Erange", "Draw E").SetValue(new Circle(true, Color.Green)));
+            championMenu.SubMenu("Drawings").AddItem(new MenuItem("draw_Rrange", "Draw R").SetValue(new Circle(true, Color.White)));
+
             Menu subMenu = new Menu("KillSteal", "KillSteal", false);
             subMenu.AddItem(new MenuItem("ks_enable", "Enable - Q", false).SetValue<bool>(true));
             championMenu.AddSubMenu(subMenu);
@@ -86,6 +90,7 @@ namespace Kor_AIO.Champions
 
         private static void combo()
         {
+            /*
             if (Q.IsReady() && championMenu.Item("combo_Q").GetValue<bool>())
                 Cast(Q, TargetSelector.DamageType.Magical);
             else if (E.IsReady() && championMenu.Item("combo_E").GetValue<bool>())
@@ -96,6 +101,20 @@ namespace Kor_AIO.Champions
                     Cast(E, TargetSelector.DamageType.Magical);
             }
             else if (W.IsReady() && championMenu.Item("combo_W").GetValue<bool>())
+                Cast(W);*/
+
+            if (Q.IsReady() && championMenu.Item("combo_Q").GetValue<bool>())
+                Cast(Q, TargetSelector.DamageType.Magical);
+
+            if (E.IsReady() && championMenu.Item("combo_E").GetValue<bool>())
+            {
+                if (championMenu.Item("E_target").GetValue<StringList>().SelectedValue == "Me")
+                    Cast(E);
+                else
+                    Cast(E, TargetSelector.DamageType.Magical);
+            }
+
+            if (!Q.IsReady() && !E.IsReady() && W.IsReady() && championMenu.Item("combo_W").GetValue<bool>())
                 Cast(W);
         }
         private static void KillSteal()

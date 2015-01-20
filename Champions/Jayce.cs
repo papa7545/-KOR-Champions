@@ -6,26 +6,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using Color = System.Drawing.Color;
 namespace Kor_AIO.Champions
 {
     class Jayce : Kor_AIO_Base
     {
+
+
+        public static bool isCannon = true;
+
+
         public Jayce()
         {
             LoadMenu();
             SetSpells();
         }
-
-        public static bool isCannon = true;
-
-        private readonly float[] _cannonQcd = { 8, 8, 8, 8, 8 };
-        private readonly float[] _cannonWcd = { 14, 12, 10, 8, 6 };
-        private readonly float[] _cannonEcd = { 16, 16, 16, 16, 16 };
-
-        private readonly float[] _hammerQcd = { 16, 14, 12, 10, 8 };
-        private readonly float[] _hammerWcd = { 10, 10, 10, 10, 10 };
-        private readonly float[] _hammerEcd = { 14, 13, 12, 11, 10 };
 
         private void SetSpells()
         {
@@ -56,7 +51,6 @@ namespace Kor_AIO.Champions
             championMenu.SubMenu("Combo").AddItem(new MenuItem("ComboUseEHammer", "Use Hammer E", true).SetValue(true));
             championMenu.SubMenu("Combo").AddItem(new MenuItem("ComboUseR", "Use R to Switch", true).SetValue(true));
 
-
             //Harass menu:
             championMenu.SubMenu("Harass").AddItem(new MenuItem("HarassUseQ", "Use Cannon Q", true).SetValue(true));
             championMenu.SubMenu("Harass").AddItem(new MenuItem("HarassUseW", "Use Cannon W", true).SetValue(true));
@@ -68,7 +62,6 @@ namespace Kor_AIO.Champions
             championMenu.SubMenu("LaneClear").AddItem(new MenuItem("LaneClearUseE", "Use Cannon E", true).SetValue(true));
             championMenu.SubMenu("LaneClear").AddItem(new MenuItem("LaneClearMana", "Mana > %", true).SetValue(new Slider(40)));
 
-
             //Jungle Clear menu:
             championMenu.SubMenu("JungleClear").AddItem(new MenuItem("JungleClearUseQ", "Use Cannon Q", true).SetValue(true));
             championMenu.SubMenu("JungleClear").AddItem(new MenuItem("JungleClearUseW", "Use Cannon W", true).SetValue(true));
@@ -76,10 +69,9 @@ namespace Kor_AIO.Champions
 
             //Misc Menu:
             championMenu.SubMenu("Misc").AddItem(new MenuItem("shootQE", "Shoot QE", true).SetValue(new KeyBind('T', KeyBindType.Press)));
+            championMenu.SubMenu("Misc").AddItem(new MenuItem("useEscape", "Escape", true).SetValue(new KeyBind('~', KeyBindType.Press)));
             championMenu.SubMenu("Misc").AddItem(new MenuItem("UseParallelE", "Use Parallel E", true).SetValue(true));
             championMenu.SubMenu("Misc").AddItem(new MenuItem("eAway", "Gate Distance", true).SetValue(new Slider(20, 3, 60)));
-            championMenu.SubMenu("Misc").AddItem(new MenuItem("UseInterrupt", "Use E to Interrupt", true).SetValue(true));
-            championMenu.SubMenu("Misc").AddItem(new MenuItem("UseGapCloser", "Use E for GapCloser", true).SetValue(true));
             championMenu.SubMenu("Misc").AddItem(new MenuItem("UseQAlways", "Use Q When E onCD", true).SetValue(true));
             championMenu.SubMenu("Misc").AddItem(new MenuItem("autoE", "EPushInCombo HP < %", true).SetValue(new Slider(20)));
         }
@@ -95,10 +87,11 @@ namespace Kor_AIO.Champions
                 return;
 
             checkForm();
+            ProcessCoolDowns();
 
             if (OrbwalkerMode == Orbwalking.OrbwalkingMode.Combo)
             {
-
+                //Combo();
             }
 
             if (OrbwalkerMode == Orbwalking.OrbwalkingMode.Mixed)
@@ -111,15 +104,60 @@ namespace Kor_AIO.Champions
                 shootQE(Game.CursorPos);
             }
 
+            if (championMenu.Item("useEscape", true).GetValue<KeyBind>().Active)
+            {
+                MoveTo(Game.CursorPos);
+
+                if (_canEcd == 0)
+                {
+                    if (isCannon)
+                        E.Cast(getParalelVec(Game.CursorPos), Packets());
+                    else
+                        R.Cast();
+                }
+                else
+                {
+                    if (R.IsReady())
+                        R.Cast();
+                }
+            }
+
             if (OrbwalkerMode == Orbwalking.OrbwalkingMode.LaneClear)
             {
 
             }
         }
 
+        private static int _lastMovement;
+        private static void MoveTo(Vector3 position)
+        {
+            if (Environment.TickCount - _lastMovement < 80)
+                return;
+
+            _lastMovement = Environment.TickCount;
+
+            if (Player.ServerPosition.Distance(position) < 50)
+            {
+                if (Player.Path.Count() > 1)
+                    Player.IssueOrder(GameObjectOrder.HoldPosition, Player.Position);
+                return;
+            }
+            var point = Player.ServerPosition +
+            300 * (position.To2D() - Player.ServerPosition.To2D()).Normalized().To3D();
+            Player.IssueOrder(GameObjectOrder.MoveTo, point);
+        }
+
+        public override void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs args)
+        {
+            if (unit.IsMe)
+            {
+                GetCooldowns(args);
+            }
+        }
+
         public override void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
-            if (!championMenu.Item("UseGap", true).GetValue<bool>())
+            if (!championMenu.SubMenu("Misc").Item("useAntiGapCloser", true).GetValue<bool>())
                 return;
 
             if (_hamEcd == 0 && gapcloser.Sender.IsValidTarget(E2.Range + gapcloser.Sender.BoundingRadius))
@@ -134,7 +172,8 @@ namespace Kor_AIO.Champions
 
         public override void Interrupter_OnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
         {
-            if (!championMenu.Item("UseInt", true).GetValue<bool>()) return;
+            if (!championMenu.SubMenu("Misc").Item("UseInterrupt", true).GetValue<bool>())
+                return;
 
             if (unit != null && Player.Distance(unit) < Q2.Range + unit.BoundingRadius && _hamQcd == 0 && _hamEcd == 0)
             {
@@ -159,9 +198,32 @@ namespace Kor_AIO.Champions
         {
             if (isCannon)
             {
+                if (championMenu.SubMenu("Drawings").Item("draw_Qrange").GetValue<bool>())
+                {
+                    if (_canQcd == 0)
+                        Render.Circle.DrawCircle(Player.Position, Q.Range, Color.Aqua);
+                    else
+                        Render.Circle.DrawCircle(Player.Position, Q.Range, Color.Red);
+                }
 
+                if ((_canQcd == 0) && (_canEcd == 0))
+                    Render.Circle.DrawCircle(Player.Position, QCharged.Range, Color.Aqua);
+                else
+                    Render.Circle.DrawCircle(Player.Position, QCharged.Range, Color.Red);
+            }
+            else
+            {
+                if (_hamQcd == 0)
+                    Render.Circle.DrawCircle(Player.Position, Q2.Range, Color.Aqua);
+                else
+                    Render.Circle.DrawCircle(Player.Position, Q2.Range, Color.Red);
+                if (_hamEcd == 0)
+                    Render.Circle.DrawCircle(Player.Position, E2.Range, Color.Aqua);
+                else
+                    Render.Circle.DrawCircle(Player.Position, E2.Range, Color.Red);
             }
         }
+
         #region ShootQE
 
         public static Vector2 getParalelVec(Vector3 pos)
@@ -188,13 +250,13 @@ namespace Kor_AIO.Champions
         {
             try
             {
-                
+
                 if (!E.IsReady() || !Q.IsReady() || !isCannon)
                     return false;
-                
+
                 if (!isCannon && R.IsReady())
                     R.Cast();
-                
+
                 if (Packets())
                 {
                     Q.Cast(pos.To2D(), Packets());
@@ -220,10 +282,18 @@ namespace Kor_AIO.Champions
 
         #endregion
 
-        private float _canQcd, _canWcd, _canEcd;
-        private float _hamQcd, _hamWcd, _hamEcd;
-        private float _canQcdRem, _canWcdRem, _canEcdRem;
-        private float _hamQcdRem, _hamWcdRem, _hamEcdRem;
+        private float _canQcd, _canWcd, _canEcd, _canRcd;
+        private float _hamQcd, _hamWcd, _hamEcd, hamRcd;
+        private float _canQcdRem, _canWcdRem, _canEcdRem, _canRcdRem;
+        private float _hamQcdRem, _hamWcdRem, _hamEcdRem, _hamRcdRem;
+
+        private readonly float[] _cannonQcd = { 8, 8, 8, 8, 8 };
+        private readonly float[] _cannonWcd = { 14, 12, 10, 8, 6 };
+        private readonly float[] _cannonEcd = { 16, 16, 16, 16, 16 };
+
+        private readonly float[] _hammerQcd = { 16, 14, 12, 10, 8 };
+        private readonly float[] _hammerWcd = { 10, 10, 10, 10, 10 };
+        private readonly float[] _hammerEcd = { 14, 13, 12, 11, 10 };
 
         private void ProcessCoolDowns()
         {
