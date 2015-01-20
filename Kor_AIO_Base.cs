@@ -214,7 +214,7 @@ namespace Kor_AIO
         #endregion
 
         #region Render Circle
-        public static void CircleRendering(GameObject target, float Radius,MenuItem coloritem, int tickness = 1)
+        public static void CircleRendering(GameObject target, float Radius, MenuItem coloritem, int tickness = 1)
         {
             var temp = new Render.Circle(target, Radius, coloritem.GetValue<Circle>().Color, tickness)
                 {
