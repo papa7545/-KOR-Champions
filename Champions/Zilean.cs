@@ -21,27 +21,22 @@ namespace Kor_AIO.Champions
         /// </summary>
         /// 
 
+
+
         public Zilean()
         {
             Q = new Spell(SpellSlot.Q, 700f, TargetSelector.DamageType.Physical);
             W = new Spell(SpellSlot.W, float.MaxValue, TargetSelector.DamageType.Physical);
             E = new Spell(SpellSlot.E, 700f, TargetSelector.DamageType.Physical);
             R = new Spell(SpellSlot.R, 900f, TargetSelector.DamageType.Physical);
-
-            championMenu.SubMenu("Drawings").AddItem(new MenuItem("draw_Qrange", "Draw Q").SetValue(new Circle(true, Color.Red)));
-            championMenu.SubMenu("Drawings").AddItem(new MenuItem("draw_Wrange", "Draw W").SetValue(new Circle(true, Color.Blue)));
-            championMenu.SubMenu("Drawings").AddItem(new MenuItem("draw_Erange", "Draw E").SetValue(new Circle(true, Color.Green)));
-            championMenu.SubMenu("Drawings").AddItem(new MenuItem("draw_Rrange", "Draw R").SetValue(new Circle(true, Color.White)));
-
             Menu subMenu = new Menu("KillSteal", "KillSteal", false);
             subMenu.AddItem(new MenuItem("ks_enable", "Enable - Q", false).SetValue<bool>(true));
             championMenu.AddSubMenu(subMenu);
-            championMenu.SubMenu("Harass").AddItem(new MenuItem("harass_Q", "Q", false).SetValue<bool>(true));
-            championMenu.SubMenu("Harass").AddItem(new MenuItem("harass_W", "W", false).SetValue<bool>(true));
-            championMenu.SubMenu("Harass").AddItem(new MenuItem("harass_E", "E", false).SetValue<bool>(false));
-            championMenu.SubMenu("Combo").AddItem(new MenuItem("combo_Q", "Q", false).SetValue<bool>(true));
-            championMenu.SubMenu("Combo").AddItem(new MenuItem("combo_W", "W", false).SetValue<bool>(true));
-            championMenu.SubMenu("Combo").AddItem(new MenuItem("combo_E", "E", false).SetValue<bool>(true));
+
+            Spell[] SpellList = new[] { Q, W, E };
+            ConfigManager.SetCombo(SpellList, true, true, true);
+            ConfigManager.SetHarass(SpellList, true, true, false);
+
             Menu menu2 = new Menu("E - TimeWarp", "E - TimeWarp", false);
             menu2.AddItem(new MenuItem("E_target", "Target", false).SetValue<StringList>(new StringList(new string[] { "Me", "Enemy" }, 0)));
             championMenu.AddSubMenu(menu2);
@@ -50,16 +45,16 @@ namespace Kor_AIO.Champions
             menu3.AddItem(new MenuItem("R_me", "Me", false).SetValue<bool>(true));
             menu3.AddItem(new MenuItem("R_ally", "Ally", false).SetValue<bool>(true));
             menu3.AddItem(new MenuItem("empty", "", false));
-            foreach (Obj_AI_Hero hero in from t in ObjectManager.Get<Obj_AI_Hero>()
-                                         where t.IsAlly && !t.IsMe
-                                         select t)
+            foreach (Obj_AI_Hero hero in ObjectManager.Get<Obj_AI_Hero>().Where(t => t.IsAlly && !t.IsMe))
             {
                 menu3.AddItem(new MenuItem("R_ally_" + hero.ChampionName, hero.ChampionName, false).SetValue<bool>(true));
             }
             menu3.AddItem(new MenuItem("R_HP", "HP(%)", false).SetValue<Slider>(new Slider(10, 0, 100)));
             championMenu.AddSubMenu(menu3);
-            CircleRendering(Player, Q.Range, championMenu.Item("draw_Qrange", false), 5);
-            CircleRendering(Player, R.Range, championMenu.Item("draw_Rrange", false), 5);
+
+            CircleRendering(Player, Q.Range, "draw_Qrange", 5);
+            CircleRendering(Player, R.Range, "draw_Rrange", 5);
+
             IgniteSlot = Player.GetSpellSlot("SummonerDot");
         }
 
@@ -82,39 +77,40 @@ namespace Kor_AIO.Champions
 
         private static void harass()
         {
-            if (Q.IsReady())
+            if (Q.IsReady() && GetBoolFromMenu(Q, false, true))
                 Cast(Q, TargetSelector.DamageType.Magical);
-            else if (W.IsReady())
+            else if (E.IsReady() && GetBoolFromMenu(E, false,true))
+            {
+                if (championMenu.Item("E_target").GetValue<StringList>().SelectedValue == "Me")
+                    Cast(E);
+                else
+                    Cast(E, TargetSelector.DamageType.Magical);
+            }
+            else if (W.IsReady() &&
+                Player.Mana >= Player.Spellbook.GetSpell(SpellSlot.Q).ManaCost + Player.Spellbook.GetSpell(SpellSlot.W).ManaCost &&
+                Player.Spellbook.GetSpell(SpellSlot.Q).CooldownExpires - Game.Time > 2.0f &&
+                GetBoolFromMenu(W, false, true))
                 Cast(W);
         }
 
         private static void combo()
         {
-            /*
-            if (Q.IsReady() && championMenu.Item("combo_Q").GetValue<bool>())
+
+            Game.PrintChat(Player.Spellbook.GetSpell(SpellSlot.Q).CooldownExpires - Game.Time + "!");
+
+            if (Q.IsReady() && GetBoolFromMenu(Q,true))
                 Cast(Q, TargetSelector.DamageType.Magical);
-            else if (E.IsReady() && championMenu.Item("combo_E").GetValue<bool>())
+            else if (E.IsReady() && GetBoolFromMenu(Q,true))
             {
                 if (championMenu.Item("E_target").GetValue<StringList>().SelectedValue == "Me")
                     Cast(E);
                 else
                     Cast(E, TargetSelector.DamageType.Magical);
             }
-            else if (W.IsReady() && championMenu.Item("combo_W").GetValue<bool>())
-                Cast(W);*/
-
-            if (Q.IsReady() && championMenu.Item("combo_Q").GetValue<bool>())
-                Cast(Q, TargetSelector.DamageType.Magical);
-
-            if (E.IsReady() && championMenu.Item("combo_E").GetValue<bool>())
-            {
-                if (championMenu.Item("E_target").GetValue<StringList>().SelectedValue == "Me")
-                    Cast(E);
-                else
-                    Cast(E, TargetSelector.DamageType.Magical);
-            }
-
-            if (!Q.IsReady() && !E.IsReady() && W.IsReady() && championMenu.Item("combo_W").GetValue<bool>())
+            else if (W.IsReady() &&
+                Player.Mana >= Player.Spellbook.GetSpell(SpellSlot.Q).ManaCost + Player.Spellbook.GetSpell(SpellSlot.W).ManaCost &&
+                Player.Spellbook.GetSpell(SpellSlot.Q).CooldownExpires - Game.Time > 2.0f &&
+                GetBoolFromMenu(W, true))
                 Cast(W);
         }
         private static void KillSteal()
@@ -182,7 +178,6 @@ namespace Kor_AIO.Champions
 
                                 if (missile.SpellCaster.GetDamageSpell(hero, missile.SData.Name).CalculatedDamage >= hero.Health)
                                     Cast(R, hero);
-
                             }
                         }
                     }

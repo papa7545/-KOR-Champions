@@ -1,10 +1,6 @@
 ﻿using LeagueSharp;
 using LeagueSharp.Common;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Kor_AIO
 {
@@ -32,9 +28,12 @@ namespace Kor_AIO
             Activator.CreateInstance(plugin);
         }
 
-        public static void PrintChat(string msg)
+        public static void PrintChat(string msg, bool Error = false,string ErrorMethod = "")
         {
-            Game.PrintChat("<font color='#3492EB'>[Kor AIO] : </font><font color='#FFFFFF'>" + msg + "</font>");
+            if (!Error)
+                Game.PrintChat("<font color='#3492EB'>[Kor AIO] : </font><font color='#FFFFFF'>" + msg + "</font>");
+            else
+                Game.PrintChat("<font color='#FF0000'>[" + ErrorMethod + "]:</font> " + msg);
         }
     }
 }

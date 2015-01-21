@@ -29,22 +29,20 @@ namespace Kor_AIO.Champions
             E = new Spell(SpellSlot.E, 700);
             R = new Spell(SpellSlot.R, 825);
 
-            var lasthit_menu = new Menu("LastHit_Spell", "LastHit_Spell");
-            lasthit_menu.AddItem(new MenuItem("lt_auto", "Auto").SetValue(false));
-            lasthit_menu.AddItem(new MenuItem("lt_posion", "IsPosioned?").SetValue(true));
-            ConfigManager.championMenu.AddSubMenu(lasthit_menu);
+            Spell[] SpellList = new []{Q,W,E};
+            ConfigManager.SetCombo(SpellList, true, true, true);
+            ConfigManager.SetHarass(SpellList, true, false, true);
 
-            championMenu.SubMenu("Drawings").AddItem(new MenuItem("draw_Qrange", "Draw Q").SetValue(new Circle(true, Color.Red)));
-            championMenu.SubMenu("Drawings").AddItem(new MenuItem("draw_Wrange", "Draw W").SetValue(new Circle(true, Color.Blue)));
-            championMenu.SubMenu("Drawings").AddItem(new MenuItem("draw_Erange", "Draw E").SetValue(new Circle(true, Color.Green)));
-            championMenu.SubMenu("Drawings").AddItem(new MenuItem("draw_Rrange", "Draw R").SetValue(new Circle(true, Color.White)));
+            championMenu.SubMenu("LaneClear").AddItem(new MenuItem("lt_Auto", "Auto").SetValue(false));
+            championMenu.SubMenu("LaneClear").AddItem(new MenuItem("lt_enable", "Enable").SetValue(true));
+            championMenu.SubMenu("LaneClear").AddItem(new MenuItem("lt_posion", "IsPosioned?").SetValue(true));
 
 
             Q.SetSkillshot(1f, 75f, float.MaxValue, false, SkillshotType.SkillshotCircle);
             W.SetSkillshot(0.6f, 200f, float.MaxValue, false, SkillshotType.SkillshotCircle);
 
-            CircleRendering(Player, Q.Range, championMenu.Item("draw_Qrange"), 5);
-            CircleRendering(Player, E.Range, championMenu.Item("draw_Erange"), 5);
+            CircleRendering(Player, Q.Range, "draw_Qrange", 5);
+            CircleRendering(Player, E.Range, "draw_Erange", 5);
         }
 
         public override void Game_OnGameUpdate(EventArgs args)
@@ -55,11 +53,11 @@ namespace Kor_AIO.Champions
             if (OrbwalkerMode == Orbwalking.OrbwalkingMode.Mixed)
                 harass();
 
-            if (OrbwalkerMode == Orbwalking.OrbwalkingMode.LastHit)
+            if (OrbwalkerMode == Orbwalking.OrbwalkingMode.LastHit || ConfigManager.championMenu.Item("lt_Auto").GetValue<bool>())
             {
-                if (ConfigManager.championMenu.Item("lt_auto").GetValue<bool>())
+                if (championMenu.Item("lt_enable").GetValue<bool>())
                 {
-                    if (ConfigManager.championMenu.Item("lt_posion").GetValue<bool>())
+                    if (championMenu.Item("lt_posion").GetValue<bool>())
                     {
                         if (ObjectManager.Get<Obj_AI_Minion>().Any(
                             t =>
@@ -116,14 +114,16 @@ namespace Kor_AIO.Champions
                 foreach (var buff in eTarget.Buffs.Where(b => b.DisplayName == "CassiopeiaNoxiousBlast" || b.DisplayName == "CassiopeiaMiasma"))
                 {
                     var buffTime = Game.Time - buff.StartTime;
-                    if (buffTime + eTime <= 3.5f)
+                    if (buffTime + eTime <= 3.5f && GetBoolFromMenu(E, false, true))
                         E.CastOnUnit(eTarget);
                 }
             }
             else
             {
-                Kor_AIO_Base.Cast(Q, TargetSelector.DamageType.Magical);
-                Kor_AIO_Base.Cast(W, TargetSelector.DamageType.Magical);
+                if(GetBoolFromMenu(Q,false,true))
+                    Kor_AIO_Base.Cast(Q, TargetSelector.DamageType.Magical);
+                if (GetBoolFromMenu(W, false, true))
+                    Kor_AIO_Base.Cast(W, TargetSelector.DamageType.Magical);
             }
             if (eTarget == null)
                 return;

@@ -78,9 +78,7 @@ namespace Kor_AIO
                         && !hero.IsMe && !hero.IsAlly))
                 {
                     if (Player.Spellbook.CanUseSpell(Ignite.Slot) == SpellState.Ready && (hero.Health + hero.HPRegenRate * 2) <= dmg)
-                    {
                         Player.Spellbook.CastSpell(Ignite.Slot, hero);
-                    }
                 }
             }
         }
@@ -92,13 +90,11 @@ namespace Kor_AIO
         public virtual void Drawing_ForRender(EventArgs args)
         {
             if(RenderCircleList.Any())
-            {
                 foreach(var _t in RenderCircleList.Where(t => t._Circle.Visible
                     && t._Circle.Color != t.ColorItem.GetValue<Circle>().Color))
                 {
                     _t._Circle.Color = _t.ColorItem.GetValue<Circle>().Color;
                 }
-            }
         }
         public virtual void Drawing_OnDraw(EventArgs args)
         {
@@ -132,10 +128,12 @@ namespace Kor_AIO
         }
         #endregion
 
+        #region methods
+
         #region Cast
         public static bool Packets()
         {
-            return championMenu.Item("usePacket").GetValue<bool>();
+            return championMenu.Item("usePacket", true).GetValue<bool>();
         }
 
         public static void Cast(Spell spell, Obj_AI_Base target, HitChance hitChance = HitChance.VeryHigh, bool aoe = false)
@@ -218,19 +216,56 @@ namespace Kor_AIO
         #endregion
 
         #region Render Circle
-        public static void CircleRendering(GameObject target, float Radius, MenuItem coloritem, int tickness = 1)
+        public static void CircleRendering(GameObject target, float Radius,string coloritem, int tickness = 1)
         {
-            var temp = new Render.Circle(target, Radius, coloritem.GetValue<Circle>().Color, tickness)
+            var menu = championMenu.Item(coloritem, true);
+            var temp = new Render.Circle(target, Radius, menu.GetValue<Circle>().Color, tickness)
                 {
-                    VisibleCondition = c => coloritem.GetValue<Circle>().Active,
+                    VisibleCondition = c => menu.GetValue<Circle>().Active,
                 };
             temp.Add();
             RenderCircleList.Add(new RenderInfo()
             {
                 _Circle = temp,
-                ColorItem = coloritem
+                ColorItem = menu
             });
         }
         #endregion
+
+        #region GetBoolFromMenu
+        public static bool GetBoolFromMenu(Menu rootmenu, string ID, string submenu = null, bool MadeChampionuniq = false)
+        {
+            if (submenu == null)
+                return rootmenu.Item(ID, MadeChampionuniq).GetValue<bool>();
+            else
+                return rootmenu.SubMenu(submenu).Item(ID, MadeChampionuniq).GetValue<bool>();
+        }
+        public static bool GetBoolFromMenu(Spell Spell, bool IsCombo = false, bool IsHarass = false)
+        {
+            SpellSlot[] Support = { SpellSlot.Q, SpellSlot.W, SpellSlot.E, SpellSlot.R };
+
+            if (IsCombo == true && IsHarass == true)
+            {
+                Game.PrintChat("<font color='#FF0000'>[GetBoolFromMenu]:</font> Error! Don't use IsCombo with IsHarass Returened False");
+                return false;
+            }
+            if (!Support.Contains(Spell.Slot))
+            {
+                Game.PrintChat("<font color='#FF0000'>[GetBoolFromMenu]:</font> Error! SpellSlot is wrong type");
+                return false;
+            }
+
+            
+            if (IsCombo)
+                return championMenu.SubMenu("Combo").Item("combo_" + Spell.Slot.ToString(),true).GetValue<bool>();
+            if (IsHarass)
+                return championMenu.SubMenu("Harass").Item("harass_" + Spell.Slot.ToString(), true).GetValue<bool>();
+
+            Game.PrintChat("<font color='#FF0000'>[GetBoolFromMenu]:</font> Error! You must use IsCombo or IsHarass");
+            return false;
+        }
+        #endregion GetBoolFromMenu
+
+        #endregion methods
     }
 }

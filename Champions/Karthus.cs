@@ -6,7 +6,6 @@ using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
 using System.Text;
-using Color = System.Drawing.Color;
 #endregion
 
 namespace Kor_AIO.Champions
@@ -47,12 +46,6 @@ namespace Kor_AIO.Champions
             championMenu.SubMenu("LaneClear").AddItem(new MenuItem("clear_Q", "Q").SetValue(true));
             championMenu.SubMenu("LaneClear").AddItem(new MenuItem("clear_E", "E").SetValue(true));
 
-
-            championMenu.SubMenu("Drawings").AddItem(new MenuItem("draw_Qrange", "Draw Q").SetValue(new Circle(true, Color.Red)));
-            championMenu.SubMenu("Drawings").AddItem(new MenuItem("draw_Wrange", "Draw W").SetValue(new Circle(true, Color.Blue)));
-            championMenu.SubMenu("Drawings").AddItem(new MenuItem("draw_Erange", "Draw E").SetValue(new Circle(true, Color.Green)));
-            championMenu.SubMenu("Drawings").AddItem(new MenuItem("draw_Rrange", "Draw R").SetValue(new Circle(true, Color.White)));
-
             var Emenu = new Menu("E - Defile", "E - Defile");
             Emenu.AddItem(new MenuItem("e_smartcast", "SmartCast").SetValue(true));
             Emenu.AddItem(new MenuItem("e_mana", "Require mana(%)").SetValue(new Slider(20,0,100)));
@@ -64,8 +57,8 @@ namespace Kor_AIO.Champions
             Rmenu.AddItem(new MenuItem("r_distance", "Nobody in Range)").SetValue(new Slider(1000, 0, 2500)));
             championMenu.AddSubMenu(Rmenu);
 
-            CircleRendering(Player, Q.Range, championMenu.Item("draw_Qrange"), 5);
-            CircleRendering(Player, W.Range, championMenu.Item("draw_Wrange"), 5);
+            CircleRendering(Player, Q.Range, "draw_Qrange", 5);
+            CircleRendering(Player, W.Range, "draw_Wrange", 5);
             UltText.Add();
         }
         public override void Game_OnGameUpdate(EventArgs args)

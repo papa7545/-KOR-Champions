@@ -59,6 +59,7 @@
   <ItemGroup>
     <Compile Include="Champions\Akali.cs" />
     <Compile Include="Champions\Karthus.cs" />
+    <Compile Include="Champions\Xerath.cs" />
     <Compile Include="Champions\Zilean.cs" />
     <Compile Include="Champions\Blitzcrank.cs" />
     <Compile Include="Champions\Cassiopeia.cs" />
@@ -69,7 +70,6 @@
     <Compile Include="Champions\TwistedFate.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Champions\Xerath.cs" />
     <Compile Include="ConfigManager.cs" />
     <Compile Include="Kor_AIO_Base.cs" />
     <Compile Include="Program.cs" />

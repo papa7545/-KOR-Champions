@@ -33,13 +33,8 @@ namespace Kor_AIO.Champions
             ks_menu.AddItem(new MenuItem("ks_enable", "Enable - R").SetValue(true));
             ConfigManager.championMenu.AddSubMenu(ks_menu);
 
-            championMenu.SubMenu("Drawings").AddItem(new MenuItem("draw_Qrange", "Draw Q").SetValue(new Circle(true, Color.Red)));
-            championMenu.SubMenu("Drawings").AddItem(new MenuItem("draw_Wrange", "Draw W").SetValue(new Circle(true, Color.Blue)));
-            championMenu.SubMenu("Drawings").AddItem(new MenuItem("draw_Erange", "Draw E").SetValue(new Circle(true, Color.Green)));
-            championMenu.SubMenu("Drawings").AddItem(new MenuItem("draw_Rrange", "Draw R").SetValue(new Circle(true, Color.White)));
-
-            CircleRendering(Player, Q.Range, championMenu.Item("draw_Qrange"), 5);
-            CircleRendering(Player, R.Range, championMenu.Item("draw_Rrange"), 5);
+            CircleRendering(Player, Q.Range, "draw_Qrange", 5);
+            CircleRendering(Player, R.Range, "draw_Rrange", 5);
 
 
         }

@@ -48,12 +48,6 @@ namespace Kor_AIO.Champions
             var menu_drawing = new Menu("drawing", "drawing");
 
 
-            championMenu.SubMenu("Drawings").AddItem(new MenuItem("draw_Qrange", "Draw Q").SetValue(new Circle(true, Color.Red)));
-            championMenu.SubMenu("Drawings").AddItem(new MenuItem("draw_Wrange", "Draw W").SetValue(new Circle(true, Color.Blue)));
-            championMenu.SubMenu("Drawings").AddItem(new MenuItem("draw_Erange", "Draw E").SetValue(new Circle(true, Color.Green)));
-            championMenu.SubMenu("Drawings").AddItem(new MenuItem("draw_Rrange", "Draw R").SetValue(new Circle(true, Color.White)));
-
-
             Q = new Spell(SpellSlot.Q, 1450);
             W = new Spell(SpellSlot.W, 525);
             E = new Spell(SpellSlot.E);
@@ -266,7 +260,7 @@ namespace Kor_AIO.Champions
                         var hpPercent = target.Health / target.MaxHealth;
                         var dmgPercent = (float)dmg / target.MaxHealth;
 
-                        var barX = (target.HPBarPosition.X + 105 * hpPercent) + 10 - (dmgPercent * 105);
+                        var barX = (target.HPBarPosition.X + 105 * hpPercent) +10 - (dmgPercent*105);
                         Drawing.DrawLine(Math.Max(barX, target.HPBarPosition.X + 10), target.HPBarPosition.Y + 20, Math.Max(barX, target.HPBarPosition.X + 10), target.HPBarPosition.Y + 28, 2, dmg > target.Health ? Color.White : Color.Blue);
                         Drawing.DrawText(target.HPBarPosition.X + 140, target.HPBarPosition.Y + 15, dmg > target.Health ? Color.Peru : Color.Blue, Convert.ToInt64(dmg).ToString());
                     }
