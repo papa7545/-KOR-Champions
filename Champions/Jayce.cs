@@ -11,27 +11,6 @@ namespace Kor_AIO.Champions
 {
     class Jayce : Kor_AIO_Base
     {
-
-        public static Obj_SpellMissile myCastedQ = null;
-
-        public static Vector3 castQon = new Vector3(0, 0, 0);
-
-        /* COOLDOWN STUFF */
-        public static float[] _cannonQcd = { 8, 8, 8, 8, 8 };
-        public static float[] _cannonWcd = { 14, 12, 10, 8, 6 };
-        public static float[] _cannonEcd = { 16, 16, 16, 16, 16 };
-
-        public static float[] _hammerQcd = { 16, 14, 12, 10, 8 };
-        public static float[] _hammerWcd = { 10, 10, 10, 10, 10 };
-        public static float[] _hammerEcd = { 14, 12, 12, 11, 10 };
-
-        public static float _canQcd = 0, _canWcd = 0, _canEcd = 0;
-        public static float _hamQcd = 0, _hamWcd = 0, _hamEcd = 0;
-
-        public static float _canQcdRem = 0, _canWcdRem = 0, _canEcdRem = 0;
-        public static float _hamQcdRem = 0, _hamWcdRem = 0, _hamEcdRem = 0;
-
-        /* COOLDOWN STUFF END */
         public static bool isCannon = true;
 
         public Jayce()
@@ -86,29 +65,14 @@ namespace Kor_AIO.Champions
             championMenu.SubMenu("Misc").AddItem(new MenuItem("eAway", "Gate Distance", true).SetValue(new Slider(20, 3, 60)));
             championMenu.SubMenu("Misc").AddItem(new MenuItem("useCollision", "useCollision", true).SetValue(true));
             championMenu.SubMenu("Misc").AddItem(new MenuItem("useQwhenEonCD", "Use Q When E on CD", true).SetValue(true));
-            
+
             //Draw
             championMenu.SubMenu("Drawings").AddItem(new MenuItem("drawCannonQ", "Draw Cannon Q", true).SetValue(new Circle(true, Color.Red)));
             championMenu.SubMenu("Drawings").AddItem(new MenuItem("drawCannonQCharged", "Draw Cannon Q Charged", true).SetValue(new Circle(true, Color.Blue)));
             championMenu.SubMenu("Drawings").AddItem(new MenuItem("drawHammerQ", "Draw Hammer Q", true).SetValue(new Circle(true, Color.Green)));
             championMenu.SubMenu("Drawings").AddItem(new MenuItem("drawHammerE", "Draw Hammer E", true).SetValue(new Circle(true, Color.White)));
         }
-        public override void Orbwalking_AfterAttack(AttackableUnit unit, AttackableUnit target)
-        {
-            var useWCombo = championMenu.Item("comboUseWCannon", true).GetValue<bool>();
-            var useWLaneClear = championMenu.Item("laneclearUseWCannon", true).GetValue<bool>();
-            if (unit.IsMe && isCannon)
-            {
-                if ((OrbwalkerMode == Orbwalking.OrbwalkingMode.Combo && useWCombo) || (OrbwalkerMode == Orbwalking.OrbwalkingMode.LaneClear && useWLaneClear))
-                {
-                    if (_canWcdRem == 0 && Player.Distance(target) < 600 && isCannon && W.Level > 0 && W.IsReady())
-                    {
-                            Orbwalking.ResetAutoAttackTimer();
-                            W.Cast();
-                    }
-                }
-            }
-        }
+
         public override void Game_OnGameUpdate(EventArgs args)
         {
             if (Player.IsDead)
@@ -116,8 +80,6 @@ namespace Kor_AIO.Champions
 
             checkForm();
             processCDs();
-
-
 
             if (OrbwalkerMode == Orbwalking.OrbwalkingMode.Combo)
             {
@@ -164,27 +126,21 @@ namespace Kor_AIO.Champions
                 {
                     castQPred(qTarget);
                 }
-
-                if (!Jayce.E.IsReady())
-                    castQon = new Vector3(0, 0, 0);
-
-                else if (Jayce.castQon.X != 0)
-                    shootQE(Jayce.castQon);
             }
 
             else
             {
-                if (E2.IsReady() && Player.Distance(e2Target) <= E2.Range + q2Target.BoundingRadius)
+                if (W2.IsReady() && Player.Distance(q2Target) > W2.Range)
                 {
-                    E2.Cast(e2Target);
+                    W2.Cast();
                 }
                 if (Q2.IsReady() && Player.Distance(q2Target) <= Q2.Range + q2Target.BoundingRadius)
                 {
                     Q2.Cast(q2Target);
                 }
-                if (W2.IsReady() && Player.Distance(q2Target) > W2.Range)
+                if (E2.IsReady() && Player.Distance(e2Target) <= E2.Range + e2Target.BoundingRadius)
                 {
-                    W2.Cast();
+                    E2.Cast(e2Target);
                 }
             }
         }
@@ -193,7 +149,7 @@ namespace Kor_AIO.Champions
         {
             if (!isCannon)
                 return;
-
+            var castQon = new Vector3(0, 0, 0);
             PredictionOutput po = QCharged.GetPrediction(target);
             if (po.Hitchance >= HitChance.Low && Player.Distance(po.UnitPosition) < (QCharged.Range + target.BoundingRadius))
             {
@@ -207,6 +163,7 @@ namespace Kor_AIO.Champions
                     castQon = po.CastPosition;
                 }
             }
+            shootQE(castQon);
         }
 
         public static void castQPred(Obj_AI_Hero target)
@@ -229,6 +186,7 @@ namespace Kor_AIO.Champions
             }
         }
 
+        #region Shoot QE
         public static bool shootQE(Vector3 pos)
         {
             try
@@ -250,18 +208,13 @@ namespace Kor_AIO.Champions
             return true;
         }
 
-        public static bool gotSpeedBuff()//jaycehypercharge
-        {
-            return Player.Buffs.Any(bi => bi.Name.Contains("jaycehypercharge"));
-        }
-
         public static Vector2 getParalelVec(Vector3 pos)
         {
             if (championMenu.Item("useEtype", true).GetValue<StringList>().SelectedValue == "Parallel")
             {
                 Random rnd = new Random();
                 int neg = rnd.Next(0, 1);
-                int away = championMenu.SubMenu("Misc").Item("eAway", true).GetValue<Slider>().Value;
+                int away = championMenu.Item("eAway", true).GetValue<Slider>().Value;
                 away = (neg == 1) ? away : -away;
                 var v2 = Vector3.Normalize(pos - Player.ServerPosition) * away;
                 var bom = new Vector2(v2.Y, -v2.X);
@@ -274,7 +227,23 @@ namespace Kor_AIO.Champions
                 return Player.ServerPosition.To2D() + bom;
             }
         }
+        #endregion
+
         #region CD Calculator
+        public static float[] _cannonQcd = { 8, 8, 8, 8, 8 };
+        public static float[] _cannonWcd = { 14, 12, 10, 8, 6 };
+        public static float[] _cannonEcd = { 16, 16, 16, 16, 16 };
+
+        public static float[] _hammerQcd = { 16, 14, 12, 10, 8 };
+        public static float[] _hammerWcd = { 10, 10, 10, 10, 10 };
+        public static float[] _hammerEcd = { 14, 12, 12, 11, 10 };
+
+        public static float _canQcd = 0, _canWcd = 0, _canEcd = 0;
+        public static float _hamQcd = 0, _hamWcd = 0, _hamEcd = 0;
+
+        public static float _canQcdRem = 0, _canWcdRem = 0, _canEcdRem = 0;
+        public static float _hamQcdRem = 0, _hamWcdRem = 0, _hamEcdRem = 0;
+
         public static float calcRealCD(float time)
         {
             return time + (time * Player.PercentCooldownMod);
@@ -320,34 +289,29 @@ namespace Kor_AIO.Champions
         {
             if (isCannon)
             {
-                if (championMenu.SubMenu("Drawings").Item("drawCannonQ", true).GetValue<Circle>().Active)
+                if (championMenu.SubMenu("Drawings").Item("drawCannonQ", true).GetValue<Circle>().Active && Q.Level > 0)
                 {
-                    if (_canQcd == 0)
-                        Render.Circle.DrawCircle(Player.Position, Q.Range, championMenu.SubMenu("Drawings").Item("drawCannonQ", true).GetValue<Circle>().Color);
-                    else
-                        Render.Circle.DrawCircle(Player.Position, Q.Range, Color.Red);
+                    Render.Circle.DrawCircle(Player.Position, Q.Range, (_canQcdRem == 0) ? championMenu.SubMenu("Drawings").Item("drawCannonQ", true).GetValue<Circle>().Color : Color.Red);
                 }
 
-                if (championMenu.SubMenu("Drawings").Item("drawCannonQCharged", true).GetValue<Circle>().Active)
+                if (championMenu.SubMenu("Drawings").Item("drawCannonQCharged", true).GetValue<Circle>().Active && Q.Level > 0 && E.Level > 0)
                 {
-                    if ((_canQcd == 0) && (_canEcd == 0))
-                        Render.Circle.DrawCircle(Player.Position, QCharged.Range, championMenu.SubMenu("Drawings").Item("drawCannonQCharged", true).GetValue<Circle>().Color);
-                    else
-                        Render.Circle.DrawCircle(Player.Position, QCharged.Range, Color.Red);
+                    Render.Circle.DrawCircle(Player.Position, QCharged.Range, ((_canQcdRem == 0) && (_canEcdRem == 0)) ? championMenu.SubMenu("Drawings").Item("drawCannonQCharged", true).GetValue<Circle>().Color : Color.Red);
+
                 }
             }
             else
             {
                 if (championMenu.SubMenu("Drawings").Item("drawHammerQ", true).GetValue<Circle>().Active)
                 {
-                    if (_hamQcd == 0)
+                    if (_hamQcdRem == 0)
                         Render.Circle.DrawCircle(Player.Position, Q2.Range, championMenu.SubMenu("Drawings").Item("drawHammerQ", true).GetValue<Circle>().Color);
                     else
                         Render.Circle.DrawCircle(Player.Position, Q2.Range, Color.Red);
                 }
                 if (championMenu.SubMenu("Drawings").Item("drawHammerE", true).GetValue<Circle>().Active)
                 {
-                    if (_hamEcd == 0)
+                    if (_hamEcdRem == 0)
                         Render.Circle.DrawCircle(Player.Position, E2.Range, championMenu.SubMenu("Drawings").Item("drawHammerE", true).GetValue<Circle>().Color);
                     else
                         Render.Circle.DrawCircle(Player.Position, E2.Range, Color.Red);
@@ -395,14 +359,6 @@ namespace Kor_AIO.Champions
                     Drawing.DrawText(pScreen.X + 60, pScreen.Y, Color.Red, "E: " + _hamEcdRem.ToString("0.0"));
             }
         }
-        public static float getEQDmg(Obj_AI_Base target)
-        {
-            return
-                (float)
-                    Player.CalcDamage(target, Damage.DamageType.Physical,
-                        (7 + (ObjectManager.Player.Spellbook.GetSpell(SpellSlot.Q).Level * 77)) +
-                        (1.68 * ObjectManager.Player.FlatPhysicalDamageMod));
-        }
 
 
         public static void activateMura()
@@ -416,6 +372,32 @@ namespace Kor_AIO.Champions
             if (Player.Buffs.Count(buf => buf.Name == "Muramana") != 0)
                 Items.UseItem(3042);
         }
+        public override void Orbwalking_AfterAttack(AttackableUnit unit, AttackableUnit target)
+        {
+            var useWCombo = championMenu.Item("comboUseWCannon", true).GetValue<bool>();
+            var useWLaneClear = championMenu.Item("laneclearUseWCannon", true).GetValue<bool>();
+            if (unit.IsMe && isCannon)
+            {
+                if ((OrbwalkerMode == Orbwalking.OrbwalkingMode.Combo && useWCombo) || (OrbwalkerMode == Orbwalking.OrbwalkingMode.LaneClear && useWLaneClear))
+                {
+                    if (_canWcdRem == 0 && Player.Distance(target) < 600 && isCannon && W.Level > 0 && W.IsReady())
+                    {
+                        Orbwalking.ResetAutoAttackTimer();
+                        W.Cast();
+                    }
+                }
+            }
+        }
+
+        public static float getEQDmg(Obj_AI_Base target)
+        {
+            return
+                (float)
+                    Player.CalcDamage(target, Damage.DamageType.Physical,
+                        (7 + (ObjectManager.Player.Spellbook.GetSpell(SpellSlot.Q).Level * 77)) +
+                        (1.68 * ObjectManager.Player.FlatPhysicalDamageMod));
+        }
+
 
         public override void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs args)
         {
