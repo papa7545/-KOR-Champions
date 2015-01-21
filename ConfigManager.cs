@@ -53,7 +53,7 @@ namespace Kor_AIO
             championMenu.AddSubMenu(new Menu("Combo", "Combo"));
             championMenu.AddSubMenu(new Menu("Harass", "Harass"));
             championMenu.AddSubMenu(new Menu("Lane Clear", "LaneClear"));
-            championMenu.AddSubMenu(new Menu("Jungle Clear", "JungleClear"));
+
 
             var misc = new Menu("Misc", "Misc");
             misc.AddItem(new MenuItem("usePacket", "Packets", true)).SetValue(true);
