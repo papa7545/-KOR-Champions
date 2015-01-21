@@ -14,7 +14,7 @@ namespace Kor_AIO
         public static Menu championMenu = ConfigManager.championMenu;
         public static Menu utilityMenu = ConfigManager.utilityMenu;
         public static Obj_AI_Hero CurrentTarget = null;
-        
+
 
         public static List<RenderInfo> RenderCircleList = new List<RenderInfo>();
         public class RenderInfo
@@ -140,7 +140,7 @@ namespace Kor_AIO
         {
             if (target == null)
                 return;
-            if (spell.IsReady())
+            if (!target.IsZombie && !target.IsDead && target.IsEnemy && target.IsHPBarRendered)
             {
                 spell.Cast(target, Packets(), aoe);
             }
@@ -166,7 +166,8 @@ namespace Kor_AIO
                 if (target == null)
                     return;
 
-                spell.Cast(target, Packets());
+                if(!target.IsZombie && !target.IsDead && target.IsEnemy && target.IsHPBarRendered)
+                    spell.Cast(target, Packets());
             }
         }
 
@@ -196,19 +197,27 @@ namespace Kor_AIO
             }
         }
 
-        private static double GetDmgWithItem(Obj_AI_Base target)
+        public static double GetDmgWithItem(Obj_AI_Base target)
         {
             double Dmg = 0;
-            Dmg = Damage.GetAutoAttackDamage(Player, target);
+            float Player_bAD = Player.BaseAttackDamage;
+            float Player_aAD = Player.FlatPhysicalDamageMod;
+            float Player_totalAD = Player_bAD + Player_aAD;
+            float Player_bAP = Player.BaseAbilityDamage;
+            float Player_aAP = Player.FlatMagicDamageMod;
+            float Player_totalAP = Player_bAP + Player_aAP;
 
-            if (Items.HasItem(Convert.ToInt32(ItemId.Iceborn_Gauntlet)) && (Items.CanUseItem(Convert.ToInt32(ItemId.Iceborn_Gauntlet)) || Player.HasBuff("sheen", true)))
-                Dmg = Damage.GetAutoAttackDamage(Player, target);
+            if (Items.HasItem(Convert.ToInt32(ItemId.Sheen)) && (Items.CanUseItem(Convert.ToInt32(ItemId.Sheen)) && Player.HasBuff("sheen", true)))
+                return Dmg = Damage.CalcDamage(Player, target, Damage.DamageType.Physical, Player_bAD);
 
-            if (Items.HasItem(Convert.ToInt32(ItemId.Iceborn_Gauntlet)) && (Items.CanUseItem(Convert.ToInt32(ItemId.Iceborn_Gauntlet)) || Player.HasBuff("itemfrozenfist", true)))
-                Dmg = Damage.GetAutoAttackDamage(Player, target) * 1.25f;
+            if (Items.HasItem(Convert.ToInt32(ItemId.Iceborn_Gauntlet)) && (Items.CanUseItem(Convert.ToInt32(ItemId.Iceborn_Gauntlet)) && Player.HasBuff("itemfrozenfist", true)))
+                return Dmg = Damage.CalcDamage(Player, target, Damage.DamageType.Physical, Player_bAD * 1.25f);
 
-            if (Items.HasItem(Convert.ToInt32(ItemId.Trinity_Force)) && (Items.CanUseItem(Convert.ToInt32(ItemId.Trinity_Force)) || Player.HasBuff("sheen", true)))
-                Dmg = Damage.GetAutoAttackDamage(Player, target) * 2.00f;
+            if (Items.HasItem(Convert.ToInt32(ItemId.Trinity_Force)) && (Items.CanUseItem(Convert.ToInt32(ItemId.Trinity_Force)) && Player.HasBuff("sheen", true)))
+                return Dmg = Damage.CalcDamage(Player, target, Damage.DamageType.Physical, Player_bAD * 2f);
+
+            if (Player.HasBuff("lichbane", true))
+                return Dmg = Damage.CalcDamage(Player, target, Damage.DamageType.Magical, Player_bAD * 0.75f + Player_totalAP * 0.50f);
 
             return Dmg;
         }
@@ -219,14 +228,19 @@ namespace Kor_AIO
         public static void CircleRendering(GameObject target, float Radius,string coloritem, int tickness = 1)
         {
             var menu = championMenu.Item(coloritem, true);
-            var temp = new Render.Circle(target, Radius, menu.GetValue<Circle>().Color, tickness)
-                {
-                    VisibleCondition = c => menu.GetValue<Circle>().Active,
-                };
-            temp.Add();
+            Render.Circle Rendering = null;
+
+            Rendering = new Render.Circle(target, Radius, menu.GetValue<Circle>().Color, tickness)
+            {
+                VisibleCondition = c => menu.GetValue<Circle>().Active,
+            };
+            
+            
+            
+            Rendering.Add();
             RenderCircleList.Add(new RenderInfo()
             {
-                _Circle = temp,
+                _Circle = Rendering,
                 ColorItem = menu
             });
         }

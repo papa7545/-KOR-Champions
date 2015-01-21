@@ -61,7 +61,7 @@ namespace Kor_AIO
             misc.AddItem(new MenuItem("useAntiGapCloser", "Use Anti-GapCloser", true).SetValue(true));
             championMenu.AddSubMenu(misc);
 
-            var DrawMenu = new Menu("Drawings", "Draw");
+            var DrawMenu = new Menu("Drawings", "Drawings");
             championMenu.AddSubMenu(DrawMenu);
             DrawMenu.AddItem(new MenuItem("draw_Qrange", "Draw Q", true).SetValue(new Circle(true, Color.Red)));
             DrawMenu.AddItem(new MenuItem("draw_Wrange", "Draw W", true).SetValue(new Circle(true, Color.Blue)));
