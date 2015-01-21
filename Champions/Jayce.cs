@@ -150,6 +150,7 @@ namespace Kor_AIO.Champions
             if (!isCannon)
                 return;
             var castQon = new Vector3(0, 0, 0);
+
             PredictionOutput po = QCharged.GetPrediction(target);
             if (po.Hitchance >= HitChance.Low && Player.Distance(po.UnitPosition) < (QCharged.Range + target.BoundingRadius))
             {
@@ -163,7 +164,10 @@ namespace Kor_AIO.Champions
                     castQon = po.CastPosition;
                 }
             }
-            shootQE(castQon);
+            if (!E.IsReady())
+                castQon = new Vector3(0, 0, 0);
+            else if (castQon.X != 0)
+                shootQE(castQon);
         }
 
         public static void castQPred(Obj_AI_Hero target)
