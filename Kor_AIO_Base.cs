@@ -135,7 +135,7 @@ namespace Kor_AIO
         #region Cast
         public static bool Packets()
         {
-            return championMenu.Item("usePacket", true).GetValue<bool>();
+            return championMenu.Item("usePacket").GetValue<bool>();
         }
 
         public static void Cast(Spell spell, Obj_AI_Base target, HitChance hitChance = HitChance.VeryHigh, bool aoe = false)

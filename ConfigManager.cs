@@ -59,13 +59,10 @@ namespace Kor_AIO
             var laneclear = new Menu("Lane Clear", "LaneClear");
             championMenu.AddSubMenu(laneclear);
 
-            var jungleclear = new Menu("Jungle Clear", "JungleClear");
-            championMenu.AddSubMenu(jungleclear);
-
             var misc = new Menu("Misc", "Misc");
-            misc.AddItem(new MenuItem("usePacket", "Packets", true)).SetValue(true);
-            misc.AddItem(new MenuItem("useInterrupt", "Use Interrupt", true).SetValue(true));
-            misc.AddItem(new MenuItem("useAntiGapCloser", "Use Anti-GapCloser", true).SetValue(true));
+            misc.AddItem(new MenuItem("usePacket", "Packets")).SetValue(true);
+            misc.AddItem(new MenuItem("useInterrupt", "Use Interrupt").SetValue(true));
+            misc.AddItem(new MenuItem("useAntiGapCloser", "Use Anti-GapCloser").SetValue(true));
             championMenu.AddSubMenu(misc);
 
             var DrawMenu = new Menu("Drawings", "Drawings");

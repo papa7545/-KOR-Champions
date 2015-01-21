@@ -76,14 +76,9 @@ namespace Kor_AIO.Champions
 
             //Lane Clear
             championMenu.SubMenu("LaneClear").AddItem(new MenuItem("LaneClearUseQ", "Use Cannon Q", true).SetValue(true));
-            championMenu.SubMenu("LaneClear").AddItem(new MenuItem("LaneClearUseW", "Use Cannon W", true).SetValue(true));
+            championMenu.SubMenu("LaneClear").AddItem(new MenuItem("laneclearUseWCannon", "Use Cannon W", true).SetValue(true));
             championMenu.SubMenu("LaneClear").AddItem(new MenuItem("LaneClearUseE", "Use Cannon E", true).SetValue(true));
             championMenu.SubMenu("LaneClear").AddItem(new MenuItem("LaneClearMana", "Mana > %", true).SetValue(new Slider(40)));
-
-            //Jungle Clear
-            championMenu.SubMenu("JungleClear").AddItem(new MenuItem("JungleClearUseQ", "Use Cannon Q", true).SetValue(true));
-            championMenu.SubMenu("JungleClear").AddItem(new MenuItem("JungleClearUseW", "Use Cannon W", true).SetValue(true));
-            championMenu.SubMenu("JungleClear").AddItem(new MenuItem("JungleClearMana", "Mana > %", true).SetValue(new Slider(40)));
 
             //Misc
             championMenu.SubMenu("Misc").AddItem(new MenuItem("shootQE", "Shoot QE", true).SetValue(new KeyBind('T', KeyBindType.Press)));
@@ -101,18 +96,15 @@ namespace Kor_AIO.Champions
         public override void Orbwalking_AfterAttack(AttackableUnit unit, AttackableUnit target)
         {
             var useWCombo = championMenu.Item("comboUseWCannon", true).GetValue<bool>();
-
+            var useWLaneClear = championMenu.Item("laneclearUseWCannon", true).GetValue<bool>();
             if (unit.IsMe && isCannon)
             {
-                if (OrbwalkerMode == Orbwalking.OrbwalkingMode.Combo)
+                if ((OrbwalkerMode == Orbwalking.OrbwalkingMode.Combo && useWCombo) || (OrbwalkerMode == Orbwalking.OrbwalkingMode.LaneClear && useWLaneClear))
                 {
-                    if (_canWcd == 0 && Player.Distance(target) < 600 && isCannon && W.Level > 0 && W.IsReady())
+                    if (_canWcdRem == 0 && Player.Distance(target) < 600 && isCannon && W.Level > 0 && W.IsReady())
                     {
-                        if (useWCombo)
-                        {
                             Orbwalking.ResetAutoAttackTimer();
                             W.Cast();
-                        }
                     }
                 }
             }
@@ -403,7 +395,6 @@ namespace Kor_AIO.Champions
                     Drawing.DrawText(pScreen.X + 60, pScreen.Y, Color.Red, "E: " + _hamEcdRem.ToString("0.0"));
             }
         }
-
         public static float getEQDmg(Obj_AI_Base target)
         {
             return
@@ -436,7 +427,7 @@ namespace Kor_AIO.Champions
 
         public override void AntiGapcloser_OnEnemyGapcloser(ActiveGapcloser gapcloser)
         {
-            if (!championMenu.Item("useAntiGapCloser", true).GetValue<bool>())
+            if (!championMenu.Item("useAntiGapCloser").GetValue<bool>())
                 return;
 
             if (_hamEcd == 0 && gapcloser.Sender.IsValidTarget(E2.Range + gapcloser.Sender.BoundingRadius))
@@ -451,7 +442,7 @@ namespace Kor_AIO.Champions
 
         public override void Interrupter_OnPosibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
         {
-            if (!championMenu.SubMenu("Misc").Item("UseInterrupt", true).GetValue<bool>())
+            if (!championMenu.SubMenu("Misc").Item("UseInterrupt").GetValue<bool>())
                 return;
 
             if (unit != null && Player.Distance(unit) < Q2.Range + unit.BoundingRadius && _hamQcd == 0 && _hamEcd == 0)
