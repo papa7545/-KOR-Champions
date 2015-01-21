@@ -52,11 +52,7 @@ namespace Kor_AIO.Utilities
 
             if (useMp && ObjectManager.Player.ManaPercentage() <= _menu.Item("useMPPercent").GetValue<Slider>().Value && !IsUsingManaPot())
             {
-                if (Items.HasItem(2010) && Items.CanUseItem(2010))
-                {
-                    Items.UseItem(2010);
-                }
-                else if (Items.HasItem(2004) && Items.CanUseItem(2004))
+                if (Items.HasItem(2004) && Items.CanUseItem(2004))
                 {
                     Items.UseItem(2004);
                 }
@@ -73,8 +69,7 @@ namespace Kor_AIO.Utilities
         private static bool IsUsingManaPot()
         {
             return ObjectManager.Player.HasBuff("FlaskOfCrystalWater", true) ||
-                   ObjectManager.Player.HasBuff("ItemCrystalFlask", true) ||
-                   ObjectManager.Player.HasBuff("ItemMiniRegenPotion", true);
+                   ObjectManager.Player.HasBuff("ItemCrystalFlask", true);
         }
     }
 }

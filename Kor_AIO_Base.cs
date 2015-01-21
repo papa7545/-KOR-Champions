@@ -61,6 +61,7 @@ namespace Kor_AIO
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
             Game.OnGameSendPacket += Game_OnSendPacket;
             Game.OnGameProcessPacket += Game_OnGameProcessPacket;
+            Orbwalking.AfterAttack += Orbwalking_AfterAttack;
         }
 
         #region Virtual Event
@@ -124,6 +125,9 @@ namespace Kor_AIO
         {
         }
         public virtual void Game_OnGameProcessPacket(GamePacketEventArgs args)
+        {
+        }
+        public virtual void Orbwalking_AfterAttack(AttackableUnit unit, AttackableUnit target)
         {
         }
         #endregion

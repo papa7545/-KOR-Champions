@@ -266,7 +266,7 @@ namespace Kor_AIO.Champions
                         var hpPercent = target.Health / target.MaxHealth;
                         var dmgPercent = (float)dmg / target.MaxHealth;
 
-                        var barX = (target.HPBarPosition.X + 105 * hpPercent) +10 - (dmgPercent*105);
+                        var barX = (target.HPBarPosition.X + 105 * hpPercent) + 10 - (dmgPercent * 105);
                         Drawing.DrawLine(Math.Max(barX, target.HPBarPosition.X + 10), target.HPBarPosition.Y + 20, Math.Max(barX, target.HPBarPosition.X + 10), target.HPBarPosition.Y + 28, 2, dmg > target.Health ? Color.White : Color.Blue);
                         Drawing.DrawText(target.HPBarPosition.X + 140, target.HPBarPosition.Y + 15, dmg > target.Health ? Color.Peru : Color.Blue, Convert.ToInt64(dmg).ToString());
                     }
