@@ -30,27 +30,30 @@ namespace Kor_AIO.Utilities
             // HPPot => 2003
             // MPPot => 2004
 
-            if (useHp && ObjectManager.Player.HealthPercentage() <= _menu.Item("useHPPercent").GetValue<Slider>().Value && !IsUsingHpPot())
+            if (!ObjectManager.Player.IsDead)
             {
-                if (Items.HasItem(2041) && Items.CanUseItem(2041))
+                if (useHp && ObjectManager.Player.HealthPercentage() <= _menu.Item("useHPPercent").GetValue<Slider>().Value && !IsUsingHpPot())
                 {
-                    Items.UseItem(2041);
+                    if (Items.HasItem(2041) && Items.CanUseItem(2041))
+                    {
+                        Items.UseItem(2041);
+                    }
+                    else if (Items.HasItem(2010) && Items.CanUseItem(2010))
+                    {
+                        Items.UseItem(2010);
+                    }
+                    else if (Items.HasItem(2003) && Items.CanUseItem(2003))
+                    {
+                        Items.UseItem(2003);
+                    }
                 }
-                else if (Items.HasItem(2010) && Items.CanUseItem(2010))
-                {
-                    Items.UseItem(2010);
-                }
-                else if (Items.HasItem(2003) && Items.CanUseItem(2003))
-                {
-                    Items.UseItem(2003);
-                }
-            }
 
-            if (useMp && ObjectManager.Player.ManaPercentage() <= _menu.Item("useMPPercent").GetValue<Slider>().Value && !IsUsingManaPot())
-            {
-                if (Items.HasItem(2004) && Items.CanUseItem(2004))
+                if (useMp && ObjectManager.Player.ManaPercentage() <= _menu.Item("useMPPercent").GetValue<Slider>().Value && !IsUsingManaPot())
                 {
-                    Items.UseItem(2004);
+                    if (Items.HasItem(2004) && Items.CanUseItem(2004))
+                    {
+                        Items.UseItem(2004);
+                    }
                 }
             }
         }

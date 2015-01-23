@@ -59,6 +59,7 @@
   <ItemGroup>
     <Compile Include="Champions\Akali.cs" />
     <Compile Include="Champions\Karthus.cs" />
+    <Compile Include="Champions\Veigar.cs" />
     <Compile Include="Champions\Xerath.cs" />
     <Compile Include="Champions\Zilean.cs" />
     <Compile Include="Champions\Blitzcrank.cs" />
@@ -80,6 +81,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Utilities\PotionManager.cs" />
+    <Compile Include="Utilities\ItemManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

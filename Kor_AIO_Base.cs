@@ -1,10 +1,14 @@
 ﻿using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
+using SharpDX.Direct3D9;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Media;
+using Color = System.Drawing.Color;
+using Font = SharpDX.Direct3D9.Font;
+
 
 namespace Kor_AIO
 {
@@ -14,8 +18,9 @@ namespace Kor_AIO
         public static Menu championMenu = ConfigManager.championMenu;
         public static Menu utilityMenu = ConfigManager.utilityMenu;
         public static Obj_AI_Hero CurrentTarget = null;
-
-
+        public static List<SpellSlot> Combolist = new List<SpellSlot>();
+        public static Font font = new Font(Drawing.Direct3DDevice, new FontDescription { FaceName = "Calibri", Height = 18, });
+        
         public static List<RenderInfo> RenderCircleList = new List<RenderInfo>();
         public class RenderInfo
         {
@@ -54,6 +59,7 @@ namespace Kor_AIO
             Drawing.OnDraw += Drawing_OnDraw;
             Drawing.OnDraw += Drawing_ForRender;
             Drawing.OnEndScene += Drawing_OnDrawEndSence;
+            Drawing.OnEndScene += DrawComboDamage;
             Interrupter.OnPossibleToInterrupt += Interrupter_OnPosibleToInterrupt;
             AntiGapcloser.OnEnemyGapcloser += AntiGapcloser_OnEnemyGapcloser;
             GameObject.OnCreate += GameObject_OnCreate;
@@ -126,6 +132,45 @@ namespace Kor_AIO
         public virtual void Orbwalking_AfterAttack(AttackableUnit unit, AttackableUnit target)
         {
         }
+        public virtual void DrawComboDamage(EventArgs args)
+        {
+            if (!Combolist.Any() || !championMenu.Item("draw_combo", true).GetValue<bool>()) return;
+
+            foreach (var target in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy && hero.IsHPBarRendered))
+            {
+                #region get info
+                float Player_bAD = Player.BaseAttackDamage;
+                float Player_aAD = Player.FlatPhysicalDamageMod;
+                float Player_totalAD = Player_bAD + Player_aAD;
+                float Player_bAP = Player.BaseAbilityDamage;
+                float Player_aAP = Player.FlatMagicDamageMod;
+                float Player_totalAP = Player_bAP + Player_aAP;
+                #endregion
+                var _list = Combolist.Where(t => t.IsReady());
+                var dmg = Player.GetComboDamage(target, _list);
+                dmg += GetDmgWithItem(target);
+
+
+                var hpPercent = target.Health / target.MaxHealth;
+                var dmgPercent = (float)dmg / target.MaxHealth;
+                var x = (int)target.HPBarPosition.X;
+                var y = (int)target.HPBarPosition.Y;
+
+
+                font.DrawText(null, dmg.ToString("0"), x + 1, y + 1, SharpDX.Color.Black);
+                font.DrawText(null, dmg.ToString("0"), x, y + 1, SharpDX.Color.Black);
+                font.DrawText(null, dmg.ToString("0"), x - 1, y - 1, SharpDX.Color.Black);
+                font.DrawText(null, dmg.ToString("0"), x, y - 1, SharpDX.Color.Black);
+                font.DrawText(null, dmg.ToString("0"), x, y, SharpDX.Color.White);
+                var barX = (target.HPBarPosition.X + 105 * hpPercent) + 10 - (dmgPercent * 105);
+                Drawing.DrawLine(Math.Max(barX, target.HPBarPosition.X + 10), target.HPBarPosition.Y + 20,
+                    Math.Max(barX, target.HPBarPosition.X + 10), target.HPBarPosition.Y + 28, 2,
+                    Color.Blue);
+
+                if (target.Health <= dmg)
+                    Render.Circle.DrawCircle(target.Position, 100, Color.Peru, 50);
+            }
+        }
         #endregion
 
         #region methods
@@ -184,15 +229,19 @@ namespace Kor_AIO
         {
             if (target == null)
             {
-                var Target = ObjectManager.Get<Obj_AI_Minion>().Where(t => t.Health + 5 < LastHitSpell.GetDamage(t)
-                    && t.Distance(Player.Position) <= LastHitSpell.Range && !t.IsDead && t.IsEnemy);
+                var Target = MinionManager.GetMinions(LastHitSpell.Range, MinionTypes.All, MinionTeam.Enemy, MinionOrderTypes.MaxHealth)
+                     .FirstOrDefault(t => t.Health < Player.CalcDamage(t,Damage.DamageType.Magical,LastHitSpell.GetDamage(t)) &&
+                     HealthPrediction.GetHealthPrediction(t, (int)(Player.Distance(t, false) / LastHitSpell.Speed), (int)(LastHitSpell.Delay * 1000 + Game.Ping / 2)) > 0);
 
-                if (Target.Any() && boolean)
-                    Cast(LastHitSpell, Target.First());
+
+               
+                if (Target != null)
+                    Cast(LastHitSpell, Target);
             }
             else
             {
-                if (boolean && target.Health + 5 < LastHitSpell.GetDamage(target))
+                if (boolean && target.Health < Player.CalcDamage(target, Damage.DamageType.Magical, LastHitSpell.GetDamage(target)) &&
+                     HealthPrediction.GetHealthPrediction(target, (int)(Player.Distance(target, false) / LastHitSpell.Speed), (int)(LastHitSpell.Delay * 1000 + Game.Ping / 2)) > 0)
                     Cast(LastHitSpell, target);
             }
         }

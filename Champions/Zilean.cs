@@ -21,7 +21,7 @@ namespace Kor_AIO.Champions
         /// </summary>
         /// 
 
-
+        public static float pastTime;
 
         public Zilean()
         {
@@ -41,7 +41,7 @@ namespace Kor_AIO.Champions
             menu2.AddItem(new MenuItem("E_target", "Target", false).SetValue<StringList>(new StringList(new string[] { "Me", "Enemy" }, 0)));
             championMenu.AddSubMenu(menu2);
             Menu menu3 = new Menu("R - ChronoShift", "R - ChronoShift", false);
-            menu3.AddItem(new MenuItem("R_mode", "Mode", false).SetValue<StringList>(new StringList(new string[] { "DetectDamage", "DetectHP" }, 0)));
+            menu3.AddItem(new MenuItem("R_mode", "Mode", false).SetValue<StringList>(new StringList(new string[] { "DetectHP" }, 0)));
             menu3.AddItem(new MenuItem("R_me", "Me", false).SetValue<bool>(true));
             menu3.AddItem(new MenuItem("R_ally", "Ally", false).SetValue<bool>(true));
             menu3.AddItem(new MenuItem("empty", "", false));
@@ -56,11 +56,11 @@ namespace Kor_AIO.Champions
             CircleRendering(Player, R.Range, "draw_Rrange", 5);
 
             IgniteSlot = Player.GetSpellSlot("SummonerDot");
+
         }
 
         public override void Game_OnGameUpdate(EventArgs args)
         {
-
             CastR();
 
             if (OrbwalkerMode == Orbwalking.OrbwalkingMode.Combo)
@@ -95,9 +95,6 @@ namespace Kor_AIO.Champions
 
         private static void combo()
         {
-
-            Game.PrintChat(Player.Spellbook.GetSpell(SpellSlot.Q).CooldownExpires - Game.Time + "!");
-
             if (Q.IsReady() && GetBoolFromMenu(Q,true))
                 Cast(Q, TargetSelector.DamageType.Magical);
             else if (E.IsReady() && GetBoolFromMenu(Q,true))
@@ -124,6 +121,7 @@ namespace Kor_AIO.Champions
 
         private static void CastR()
         {
+
             if (R.IsReady())
             {
                 List<Obj_AI_Hero> SaveList = new List<Obj_AI_Hero>();
@@ -148,10 +146,16 @@ namespace Kor_AIO.Champions
                     {
                         foreach (Obj_AI_Hero hero in SaveList.Where(t => t.Distance(Player.Position) <= R.Range))
                         {
-                            Cast(R, hero);
+                            if (hero.IsMe)
+                                Cast(R);
+                            else
+                                Cast(R, hero);
                         }
                     }
                 }
+                    /*
+                     * 여기서부터는 DetectDamage
+                     */
                 else
                 {
                     if (championMenu.Item("R_me").GetValue<bool>())
@@ -165,36 +169,35 @@ namespace Kor_AIO.Champions
                             SaveList.Add(hero);
                         }
                     }
-                    if (SaveList.Any<Obj_AI_Hero>())
+                    if (SaveList.Any())
                     {
-                        foreach (Obj_AI_Hero hero in SaveList.Where(t => t.Distance(Player.Position) <= R.Range))
+                        foreach (var hero in SaveList.Where(hero => !hero.IsDead && hero.Distance(Player.Position) <= R.Range))
                         {
-                            foreach (Obj_SpellMissile missile in ObjectManager.Get<Obj_SpellMissile>().Where(missile => missile.SpellCaster.IsValid<Obj_AI_Hero>() && missile.SpellCaster.IsEnemy))
-                            {
-                                float num = missile.StartPosition.Distance(hero.Position) / missile.SData.MissileSpeed;
-                                float num2 = missile.SData.LineWidth / hero.MoveSpeed;
-                                if (num > num2)
-                                    break;
+                            var time =  - 100 + Game.Ping / 2 + 1000;
+                            var hp = HealthPrediction.GetHealthPrediction(hero, 1000);
 
-                                if (missile.SpellCaster.GetDamageSpell(hero, missile.SData.Name).CalculatedDamage >= hero.Health)
+                            if (hp == hero.Health)
+                                break;
+
+                            Game.PrintChat("Predic HP" + hp);
+                            Game.PrintChat("HP" + hero.Health);
+
+                            if (HealthPrediction.GetHealthPrediction(hero, time) <= 50)
+                            {
+                                if (hero.IsMe)
+                                    Cast(R);
+                                else
                                     Cast(R, hero);
                             }
                         }
+     
                     }
                 }
             }
         }
         public override void Obj_AI_Base_OnProcessSpellCast(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs args)
         {
-            if ((unit.IsValid<Obj_AI_Hero>() && args.Target.IsValid<Obj_AI_Hero>()) && (championMenu.Item("R_mode", false).GetValue<StringList>().SelectedValue != "DetectDamage"))
-            {
-                Obj_AI_Hero caster = (Obj_AI_Hero)unit;
-                Obj_AI_Hero target = (Obj_AI_Hero)args.Target;
-                if ((unit.IsValid<Obj_AI_Hero>() && target.IsAlly) && (caster.IsEnemy && (caster.GetDamageSpell(target, args.SData.Name).CalculatedDamage >= target.Health)))
-                {
-                    Cast(R, target);
-                }
-            }
+
         }
 
         public override void Game_Utility(EventArgs args) // ignite
@@ -217,6 +220,50 @@ namespace Kor_AIO.Champions
                     if (Player.Spellbook.CanUseSpell(Ignite.Slot) == SpellState.Ready && (hero.Health + hero.HPRegenRate * 2) <= dmg)
                         Player.Spellbook.CastSpell(Ignite.Slot, hero);
                 }
+            }
+        }
+        public override void DrawComboDamage(EventArgs args)
+        {
+            if (!championMenu.Item("draw_combo", true).GetValue<bool>()) return;
+            foreach (var target in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy && hero.IsHPBarRendered))
+            {
+                #region get info
+                float Player_bAD = Player.BaseAttackDamage;
+                float Player_aAD = Player.FlatPhysicalDamageMod;
+                float Player_totalAD = Player_bAD + Player_aAD;
+                float Player_bAP = Player.BaseAbilityDamage;
+                float Player_aAP = Player.FlatMagicDamageMod;
+                float Player_totalAP = Player_bAP + Player_aAP;
+                #endregion
+
+                var _list = new List<SpellSlot>();
+                if (Q.IsReady())
+                    _list.Add(Q.Slot);
+                if (Q.IsReady() && W.IsReady())
+                    _list.Add(Q.Slot);
+
+                var dmg = Player.GetComboDamage(target, _list);
+                dmg += GetDmgWithItem(target);
+
+
+                var hpPercent = target.Health / target.MaxHealth;
+                var dmgPercent = (float)dmg / target.MaxHealth;
+                var x = (int)target.HPBarPosition.X;
+                var y = (int)target.HPBarPosition.Y;
+
+
+                font.DrawText(null, dmg.ToString("0"), x + 1, y + 1, SharpDX.Color.Black);
+                font.DrawText(null, dmg.ToString("0"), x, y + 1, SharpDX.Color.Black);
+                font.DrawText(null, dmg.ToString("0"), x - 1, y - 1, SharpDX.Color.Black);
+                font.DrawText(null, dmg.ToString("0"), x, y - 1, SharpDX.Color.Black);
+                font.DrawText(null, dmg.ToString("0"), x, y, SharpDX.Color.White);
+                var barX = (target.HPBarPosition.X + 105 * hpPercent) + 10 - (dmgPercent * 105);
+                Drawing.DrawLine(Math.Max(barX, target.HPBarPosition.X + 10), target.HPBarPosition.Y + 20,
+                    Math.Max(barX, target.HPBarPosition.X + 10), target.HPBarPosition.Y + 28, 2,
+                    Color.Blue);
+
+                if (target.Health <= dmg)
+                    Render.Circle.DrawCircle(target.Position, 100, Color.Peru, 50);
             }
         }
     }

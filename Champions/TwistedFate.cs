@@ -10,6 +10,7 @@ using LeagueSharp.Common;
 using SharpDX;
 using SharpDX.Direct3D9;
 using Color = System.Drawing.Color;
+using Font = SharpDX.Direct3D9.Font;
 #endregion
 
 namespace Kor_AIO.Champions
@@ -30,22 +31,18 @@ namespace Kor_AIO.Champions
         public static int x = 0;
         public static bool textshow = false;
 
+
+        public static string ultText = "";
         public static Render.Text text_notifier = new Render.Text("Find Weaken Champion!", Player, new Vector2(0, 50), (int)32, ColorBGRA.FromRgba(0xFF00FFBB))
             {
-                VisibleCondition =  c => textshow,
+                VisibleCondition = c => ultText != "",
                 OutLined = true
             };
-
+        
         public TwistedFate()
         {
-
-            text_notifier.Add();
-
-            var menu_ts = new Menu("TargetSelector", "TargetSelector");
-            var menu_q = new Menu("Q-Wild Cards", "Q-Wild Cards");
             var menu_autopicker = new Menu("W-Pick A Card", "W-Pick A Card");
             var menu_notifier = new Menu("Ult Notifier", "Ult Notifier");
-            var menu_drawing = new Menu("drawing", "drawing");
 
 
             Q = new Spell(SpellSlot.Q, 1450);
@@ -55,10 +52,10 @@ namespace Kor_AIO.Champions
 
             Q.SetSkillshot(0.1f, 60, 1450, false, SkillshotType.SkillshotLine);
 
-            ConfigManager.championMenu.AddSubMenu(menu_q);
-            menu_q.AddItem(new MenuItem("TF_q_enable", "Enable").SetValue(true));
-            menu_q.AddItem(new MenuItem("TF_q_key", "Key:").SetValue(new KeyBind(32, KeyBindType.Press)));
-
+            Spell[] SpellList = new[] { Q };
+            ConfigManager.SetCombo(SpellList, true);
+            ConfigManager.SetHarass(SpellList, true);
+            
             ConfigManager.championMenu.AddSubMenu(menu_autopicker);
             menu_autopicker.AddItem(new MenuItem("TF_Cardpicker", "Pick").SetValue(true));
             menu_autopicker.AddItem(new MenuItem("TF_Goldkey", "GoldKey:").SetValue(new KeyBind('T', KeyBindType.Press)));
@@ -72,162 +69,125 @@ namespace Kor_AIO.Champions
             menu_notifier.AddItem(new MenuItem("TF_notifier", "UltNotifier").SetValue(true));
             menu_notifier.AddItem(new MenuItem("TF_notifier_HP", "Notice On HP(%)").SetValue(new Slider(10, 0, 100)));
 
+
+            CircleRendering(Player, Q.Range, "draw_Qrange", 5);
+            CircleRendering(Player, W.Range, "draw_Wrange", 5);
+            CircleRendering(Player, R.Range, "draw_Rrange", 5);
+
+
+            text_notifier.Add();
         }
 
         public override void Game_OnGameUpdate(EventArgs args)
         {
+            
+            #region get info
+            float Player_bAD = Player.BaseAttackDamage;
+            float Player_aAD = Player.FlatPhysicalDamageMod;
+            float Player_totalAD = Player_bAD + Player_aAD;
+            float Player_bAP = Player.BaseAbilityDamage;
+            float Player_aAP = Player.FlatMagicDamageMod;
+            float Player_totalAP = Player_bAP + Player_aAP;
+            #endregion
+            #region wildcards
 
-                #region get info
-                float Player_bAD = Player.BaseAttackDamage;
-                float Player_aAD = Player.FlatPhysicalDamageMod;
-                float Player_totalAD = Player_bAD + Player_aAD;
-                float Player_bAP = Player.BaseAbilityDamage;
-                float Player_aAP = Player.FlatMagicDamageMod;
-                float Player_totalAP = Player_bAP + Player_aAP;
-                #endregion
-                #region wildcards
-                if (ConfigManager.championMenu.Item("TF_q_enable").GetValue<bool>() && ConfigManager.championMenu.Item("TF_q_key").GetValue<KeyBind>().Active)
-                {
-                    Kor_AIO_Base.Cast(Q, TargetSelector.DamageType.Magical);
-                }
-                #endregion
-                #region pick a card
-                if (ConfigManager.championMenu.Item("TF_Cardpicker").GetValue<bool>())
-                {
-                    Random delayt = new Random(DateTime.Now.Millisecond);
-                    delayi = ConfigManager.championMenu.Item("TF_delay").GetValue<Slider>().Value;
-                    if (ConfigManager.championMenu.Item("TF_delayrnd").GetValue<bool>())
-                        delayi = delayt.Next(0, ConfigManager.championMenu.Item("TF_delay").GetValue<Slider>().Value);
+            if (GetBoolFromMenu(Q,true) && OrbwalkerMode == Orbwalking.OrbwalkingMode.Combo)
+                Cast(Q, TargetSelector.DamageType.Magical);
 
-                    if (stack >= 20)
+            #endregion
+            #region pick a card
+            if (ConfigManager.championMenu.Item("TF_Cardpicker").GetValue<bool>())
+            {
+                Random delayt = new Random(DateTime.Now.Millisecond);
+                delayi = ConfigManager.championMenu.Item("TF_delay").GetValue<Slider>().Value;
+                if (ConfigManager.championMenu.Item("TF_delayrnd").GetValue<bool>())
+                    delayi = delayt.Next(0, ConfigManager.championMenu.Item("TF_delay").GetValue<Slider>().Value);
+
+                if (stack >= 20)
+                    cards = card.none;
+                    stack = 0;
+
+                if (Player.Spellbook.GetSpell(SpellSlot.W).State == SpellState.Cooldown)
+                    stack++;
+
+                if (Player.Spellbook.GetSpell(SpellSlot.W).Name == "PickACard" && cards == card.none
+                    && Player.Spellbook.GetSpell(SpellSlot.W).State == SpellState.Ready)
+                {
+                    if (ConfigManager.championMenu.Item("TF_Goldkey").GetValue<KeyBind>().Active)
                     {
-                        cards = card.none;
+                        cards = card.gold;
                         stack = 0;
+                        Cast(W);
                     }
-                    if (Player.Spellbook.GetSpell(SpellSlot.W).State == SpellState.Cooldown)
+                    if (ConfigManager.championMenu.Item("TF_Bluekey").GetValue<KeyBind>().Active)
                     {
-                        stack++;
+                        cards = card.blue;
+                        stack = 0;
+                        Cast(W);
                     }
-                    if (Player.Spellbook.GetSpell(SpellSlot.W).Name == "PickACard" && cards == card.none
-                        && Player.Spellbook.GetSpell(SpellSlot.W).State == SpellState.Ready)
+                    if (ConfigManager.championMenu.Item("TF_Redkey").GetValue<KeyBind>().Active)
                     {
-                        if (ConfigManager.championMenu.Item("TF_Goldkey").GetValue<KeyBind>().Active)
-                        {
-                            cards = card.gold;
-                            stack = 0;
-                            Player.Spellbook.CastSpell(SpellSlot.W);
-                        }
-                        if (ConfigManager.championMenu.Item("TF_Bluekey").GetValue<KeyBind>().Active)
-                        {
-                            cards = card.blue;
-                            stack = 0;
-                            Player.Spellbook.CastSpell(SpellSlot.W);
-                        }
-                        if (ConfigManager.championMenu.Item("TF_Redkey").GetValue<KeyBind>().Active)
-                        {
-                            cards = card.red;
-                            stack = 0;
-                            Player.Spellbook.CastSpell(SpellSlot.W);
-                        }
-                    }
-                    if (Player.Spellbook.GetSpell(SpellSlot.W).Name == "goldcardlock" && cards == card.gold)
-                    {
-
-                        Utility.DelayAction.Add(delayi, () => { Player.Spellbook.CastSpell(SpellSlot.W); });
-                        cards = card.none;
-                    }
-                    if (Player.Spellbook.GetSpell(SpellSlot.W).Name == "bluecardlock" && cards == card.blue)
-                    {
-                        Utility.DelayAction.Add(delayi, () => { Player.Spellbook.CastSpell(SpellSlot.W); });
-                        cards = card.none;
-                    }
-                    if (Player.Spellbook.GetSpell(SpellSlot.W).Name == "redcardlock" && cards == card.red)
-                    {
-                        Utility.DelayAction.Add(delayi, () => { Player.Spellbook.CastSpell(SpellSlot.W); });
-                        cards = card.none;
+                        cards = card.red;
+                        stack = 0;
+                        Cast(W);
                     }
                 }
-                #endregion
-                #region notifier
-                if (ConfigManager.championMenu.Item("TF_notifier").GetValue<bool>() && R.IsReady())
+                if (Player.Spellbook.GetSpell(SpellSlot.W).Name == "goldcardlock" && cards == card.gold)
                 {
-                    if (ObjectManager.Get<Obj_AI_Hero>().Any(hero => hero.IsEnemy && !hero.IsDead && hero.IsVisible && Player.Distance(hero.Position) > 1450))
+                    Utility.DelayAction.Add(delayi, () => { Cast(W); });
+                    cards = card.none;
+                }
+                if (Player.Spellbook.GetSpell(SpellSlot.W).Name == "bluecardlock" && cards == card.blue)
+                {
+                    Utility.DelayAction.Add(delayi, () => { Cast(W); });
+                    cards = card.none;
+                }
+                if (Player.Spellbook.GetSpell(SpellSlot.W).Name == "redcardlock" && cards == card.red)
+                {
+                    Utility.DelayAction.Add(delayi, () => { Cast(W); });
+                    cards = card.none;
+                }
+            }
+            #endregion
+            #region notifier
+            if (championMenu.Item("TF_notifier").GetValue<bool>() && R.IsReady())
+            {
+                ultText = "";
+                foreach (var hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero =>
+                    hero.IsEnemy && hero.IsHPBarRendered && Player.Distance(hero.Position) > 1450))
                     {
-                        string str = "";
-                        foreach (var hero in ObjectManager.Get<Obj_AI_Hero>().Where(hero => 
-                            hero.IsEnemy && !hero.IsDead && hero.IsVisible && Player.Distance(hero.Position) > 1450))
-                        {
-                            if (hero.HealthPercentage() <= (float)ConfigManager.championMenu.Item("TF_notifier_HP").GetValue<Slider>().Value)
-                            {
-                                str += hero.ChampionName+" ";
-                                textshow = true;
-                            }
-                        }
-
-                        if (str == "")
-                            textshow = false;
-                        text_notifier.text = "Find Weaken Champion! :" + str;
-                        text_notifier.TextUpdate();
+                    if (hero.HealthPercentage() <= (float)ConfigManager.championMenu.Item("TF_notifier_HP").GetValue<Slider>().Value)
+                    {
+                        ultText += hero.ChampionName + " ";
                     }
                 }
-                else
-                    textshow = false;
-                #endregion
+                if (ultText == "")
+                    return;
+
+                text_notifier.text = "Find Weaken Champion! :" + ultText;
+                text_notifier.TextUpdate();
+            }
+            #endregion
         }
         public override void Drawing_OnDrawEndSence(EventArgs args)
         {
-            if (ConfigManager.championMenu.Item("draw_Rrange").GetValue<Circle>().Active)
-            {
-                J_DrawCircle(Player.Position, 5500, ConfigManager.championMenu.Item("draw_Rrange").GetValue<Circle>().Color, 1, 20, true);
-                J_DrawCircle(Player.Position, 5500, ConfigManager.championMenu.Item("draw_Rrange").GetValue<Circle>().Color, 1);
-            }
-            if (ConfigManager.championMenu.Item("draw_Qrange").GetValue<Circle>().Active)
-            {
-                J_DrawCircle(Player.Position, 1450, ConfigManager.championMenu.Item("draw_Qrange").GetValue<Circle>().Color, 1);
-            }
-            if (ConfigManager.championMenu.Item("draw_Wrange").GetValue<Circle>().Active)
-            {
-                J_DrawCircle(Player.Position, Player.AttackRange, ConfigManager.championMenu.Item("draw_Wrange").GetValue<Circle>().Color, 1);
-            }
-            if (ConfigManager.championMenu.Item("TF_killable").GetValue<bool>() || ConfigManager.championMenu.Item("TF_damage").GetValue<bool>())
-                    drawtarget();
+            if (championMenu.Item("draw_Rrange", true).GetValue<Circle>().Active)
+                J_DrawCircle(Player.Position, R.Range, championMenu.Item("draw_Rrange", true).GetValue<Circle>().Color, 1, 20, true);
+            
         }
 
-
-        #region 함수
-        public static double getQDmg(Obj_AI_Base target, double AP, int s_level)
-        {
-            return Q.GetDamage(target);
-        }
-        public static double getWDmg(Obj_AI_Base target, double AP , double AD, int s_level,string name)
-        {
-            double[] spell_basedamage = { 0, 15, 22.5, 30, 37.5, 45 };
-            switch (name)
-            {
-                case "goldcardlock":
-                    spell_basedamage = new double[] { 0, 15, 22.5, 30, 37.5, 45 }; break;
-                case "bluecardlock":
-                    spell_basedamage = new double[] { 0, 40, 60, 80, 100, 120 }; break;
-                case "redcardlock":
-                    spell_basedamage = new double[] { 0, 30, 45, 60, 75, 90 }; break;
-            }
-
-            double eDmg = AP * 0.50 + AD * 1.00 + spell_basedamage[s_level];
-
-            return ObjectManager.Player.CalcDamage(target, Damage.DamageType.Magical, eDmg);
-        }
-        public static double getEDmg(Obj_AI_Base target, double AP,double AD, int s_level)
+        public static double getEDmg(Obj_AI_Base target, double AP, double AD, int s_level)
         {
             double[] spell_basedamage = { 0, 55, 80, 105, 130, 155 };
 
             double eDmg = AP * 0.50 + spell_basedamage[s_level];
 
-            return ObjectManager.Player.CalcDamage(target, Damage.DamageType.Magical, eDmg) + ObjectManager.Player.CalcDamage(target, Damage.DamageType.Physical,AD);
+            return ObjectManager.Player.CalcDamage(target, Damage.DamageType.Magical, eDmg) + ObjectManager.Player.CalcDamage(target, Damage.DamageType.Physical, AD);
         }
-
-        public static void drawtarget()
+        public override void DrawComboDamage(EventArgs args)
         {
-            foreach (var target in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy && hero.IsValid && !hero.IsDead && hero.IsVisible))
+            if (!championMenu.Item("draw_combo",true).GetValue<bool>()) return;
+            foreach (var target in ObjectManager.Get<Obj_AI_Hero>().Where(hero => hero.IsEnemy && hero.IsHPBarRendered))
             {
                 #region get info
                 float Player_bAD = Player.BaseAttackDamage;
@@ -238,36 +198,40 @@ namespace Kor_AIO.Champions
                 float Player_totalAP = Player_bAP + Player_aAP;
                 #endregion
 
-                    double dmg = 0;
-                    if (Player.Spellbook.GetSpell(SpellSlot.Q).State == SpellState.Ready || Player.Spellbook.GetSpell(SpellSlot.Q).State == SpellState.Surpressed)
-                        dmg = getQDmg(target, Player_totalAP, Player.Spellbook.GetSpell(SpellSlot.Q).Level);
+                List<SpellSlot> Combolist = new List<SpellSlot>();
+                if (Q.IsReady())
+                    Combolist.Add(SpellSlot.Q);
+                if (W.IsReady())
+                    Combolist.Add(SpellSlot.W);
 
-                    if (Player.Spellbook.GetSpell(SpellSlot.W).State == SpellState.Ready || Player.Spellbook.GetSpell(SpellSlot.W).State == SpellState.Surpressed)
-                        dmg = dmg + getWDmg(target, Player_totalAP, Player_totalAD, Player.Spellbook.GetSpell(SpellSlot.W).Level, Player.Spellbook.GetSpell(SpellSlot.W).Name);
+                var dmg = Player.GetComboDamage(target, Combolist);
 
-                    if (Player.HasBuff("CardMasterStackParticle"))
-                        dmg = dmg + getEDmg(target, Player_totalAP, Player_totalAD, Player.Spellbook.GetSpell(SpellSlot.Q).Level);
+                dmg += GetDmgWithItem(target);
+
+                if (Player.HasBuff("CardMasterStackParticle"))
+                    dmg += getEDmg(target, Player_totalAP, Player_totalAD, Player.Spellbook.GetSpell(SpellSlot.E).Level);
+
+                var hpPercent = target.Health / target.MaxHealth;
+                var dmgPercent = (float)dmg / target.MaxHealth;
+                var x = (int)target.HPBarPosition.X;
+                var y = (int)target.HPBarPosition.Y;
 
 
+                font.DrawText(null, dmg.ToString("0"), x + 1, y + 1, SharpDX.Color.Black);
+                font.DrawText(null, dmg.ToString("0"), x, y + 1, SharpDX.Color.Black);
+                font.DrawText(null, dmg.ToString("0"), x - 1, y - 1, SharpDX.Color.Black);
+                font.DrawText(null, dmg.ToString("0"), x, y - 1, SharpDX.Color.Black);
+                font.DrawText(null, dmg.ToString("0"), x, y, SharpDX.Color.White);
+                var barX = (target.HPBarPosition.X + 105 * hpPercent) + 10 - (dmgPercent * 105);
+                Drawing.DrawLine(Math.Max(barX, target.HPBarPosition.X + 10), target.HPBarPosition.Y + 20, 
+                    Math.Max(barX, target.HPBarPosition.X + 10), target.HPBarPosition.Y + 28, 2,
+                    Color.Blue);
 
-
-
-                    if (target.Health <= dmg && ConfigManager.championMenu.Item("TF_killable").GetValue<bool>())
-                        J_DrawCircle(target.Position, 100, Color.Peru, 50);
-
-                    if (ConfigManager.championMenu.Item("TF_damage").GetValue<bool>())
-                    {
-                        var hpPercent = target.Health / target.MaxHealth;
-                        var dmgPercent = (float)dmg / target.MaxHealth;
-
-                        var barX = (target.HPBarPosition.X + 105 * hpPercent) +10 - (dmgPercent*105);
-                        Drawing.DrawLine(Math.Max(barX, target.HPBarPosition.X + 10), target.HPBarPosition.Y + 20, Math.Max(barX, target.HPBarPosition.X + 10), target.HPBarPosition.Y + 28, 2, dmg > target.Health ? Color.White : Color.Blue);
-                        Drawing.DrawText(target.HPBarPosition.X + 140, target.HPBarPosition.Y + 15, dmg > target.Health ? Color.Peru : Color.Blue, Convert.ToInt64(dmg).ToString());
-                    }
-                }
+                if (target.Health <= dmg)
+                    Render.Circle.DrawCircle(target.Position, 100, Color.Peru, 50);
+            }
         }
        
-        #endregion
         public static void J_DrawCircle(Vector3 center,
             float radius,
             Color color,

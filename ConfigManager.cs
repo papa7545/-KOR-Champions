@@ -27,6 +27,9 @@ namespace Kor_AIO
             var potionMenu = new Menu("Potion Control", "Potion");
             new PotionManager().Load(potionMenu);
             utilityMenu.AddSubMenu(potionMenu);
+            var ItemMenu = new Menu("Item Control", "Item");
+            new ItemManager().Load(ItemMenu);
+            utilityMenu.AddSubMenu(ItemMenu);
 
             var IgniteMenu = new Menu("Ignite", "Ignite");
             IgniteMenu.AddItem(new MenuItem("ignite_enable", "Enable").SetValue(true));
@@ -40,7 +43,6 @@ namespace Kor_AIO
             var orbwalkMenu = new Menu("Orbwalker", "Orbwalker");
 
             Orbwalker = new Orbwalking.Orbwalker(orbwalkMenu);
-
 
             orbwalkMenu.SubMenu("Misc").AddItem(new MenuItem("disMovement", "Disable Movement", true)).SetValue(false);
             orbwalkMenu.SubMenu("Misc").AddItem(new MenuItem("disAttack", "Disable Attack", true)).SetValue(false);
@@ -63,6 +65,7 @@ namespace Kor_AIO
 
             var DrawMenu = new Menu("Drawings", "Drawings");
             championMenu.AddSubMenu(DrawMenu);
+            DrawMenu.AddItem(new MenuItem("draw_combo", "Draw Combo", true).SetValue(true));
             DrawMenu.AddItem(new MenuItem("draw_Qrange", "Draw Q", true).SetValue(new Circle(true, Color.Red)));
             DrawMenu.AddItem(new MenuItem("draw_Wrange", "Draw W", true).SetValue(new Circle(true, Color.Blue)));
             DrawMenu.AddItem(new MenuItem("draw_Erange", "Draw E", true).SetValue(new Circle(true, Color.Green)));

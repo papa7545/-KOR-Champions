@@ -37,20 +37,24 @@ namespace Kor_AIO.Champions
             R.SetSkillshot(0.7f, 120f, float.MaxValue, false, SkillshotType.SkillshotCircle);
 
 
+            Spell[] SpellList = new[] { Q, W, E };
+            ConfigManager.SetCombo(SpellList, true, true, true);
+            ConfigManager.SetHarass(SpellList, true, false, false);
+
             CircleRendering(Player, Q.Range, "draw_Qrange", 5);
             CircleRendering(Player, W.Range, "draw_Wrange", 5);
             CircleRendering(Player, E.Range, "draw_Erange", 5);
 
-            drawR = new Render.Circle(Player, R.Range, championMenu.Item("draw_Rrange").GetValue<Circle>().Color, 5)
+            drawR = new Render.Circle(Player, R.Range, championMenu.Item("draw_Rrange",true).GetValue<Circle>().Color, 5)
             {
-                VisibleCondition = c => championMenu.Item("draw_Rrange").GetValue<Circle>().Active,
+                VisibleCondition = c => championMenu.Item("draw_Rrange", true).GetValue<Circle>().Active,
             };
             drawR.Add();
         }
 
         public override void Game_OnGameUpdate(EventArgs args)
         {
-            if (R.Level > 0 && R.Level != R.Level * 1000 + 2000)
+            if (R.Level > 0 && R.Range != R.Level * 1000 + 2000)
                 R.Range = R.Level * 1000 + 2000;
             if (R.Range != drawR.Radius)
                 drawR.Radius = R.Range;
@@ -71,7 +75,12 @@ namespace Kor_AIO.Champions
 
         public static void harass()
         {
-            Cast(Q, TargetSelector.DamageType.Magical);
+            if (GetBoolFromMenu(Q, false, true))
+                Cast(Q, TargetSelector.DamageType.Magical);
+            if (GetBoolFromMenu(W, false, true))
+                Cast(W, TargetSelector.DamageType.Magical);
+            if (GetBoolFromMenu(E, false, true))
+                Cast(E, TargetSelector.DamageType.Magical);
         }
 
         public static void combo()
@@ -90,11 +99,13 @@ namespace Kor_AIO.Champions
             }
             else
             {
-                Cast(Q, TargetSelector.DamageType.Magical);
-                Cast(W, TargetSelector.DamageType.Magical);
-                Cast(E, TargetSelector.DamageType.Magical);
+                if(GetBoolFromMenu(Q,true))
+                    Cast(Q, TargetSelector.DamageType.Magical);
+                if (GetBoolFromMenu(W, true))
+                    Cast(W, TargetSelector.DamageType.Magical);
+                if (GetBoolFromMenu(E, true))
+                    Cast(E, TargetSelector.DamageType.Magical);
             }
-
         }
 
     
