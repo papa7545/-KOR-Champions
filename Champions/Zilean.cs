@@ -25,9 +25,11 @@ namespace Kor_AIO.Champions
 
         public Zilean()
         {
-            Q = new Spell(SpellSlot.Q, 700f, TargetSelector.DamageType.Physical);
-            W = new Spell(SpellSlot.W, float.MaxValue, TargetSelector.DamageType.Physical);
-            E = new Spell(SpellSlot.E, 700f, TargetSelector.DamageType.Physical);
+            Q = new Spell(SpellSlot.Q, 900f, TargetSelector.DamageType.Magical);
+            Q.SetSkillshot(0.7f, 120f, float.MaxValue, false, SkillshotType.SkillshotCircle);
+
+            W = new Spell(SpellSlot.W, float.MaxValue);
+            E = new Spell(SpellSlot.E, 550f, TargetSelector.DamageType.Magical);
             R = new Spell(SpellSlot.R, 900f, TargetSelector.DamageType.Physical);
             Menu subMenu = new Menu("KillSteal", "KillSteal", false);
             subMenu.AddItem(new MenuItem("ks_enable", "Enable - Q", false).SetValue<bool>(true));

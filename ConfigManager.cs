@@ -58,7 +58,7 @@ namespace Kor_AIO
 
 
             var misc = new Menu("Misc", "Misc");
-            misc.AddItem(new MenuItem("usePacket", "Packets", true)).SetValue(true);
+            misc.AddItem(new MenuItem("usePacket", "Packets", true)).SetValue(false);
             misc.AddItem(new MenuItem("useInterrupt", "Use Interrupt", true).SetValue(true));
             misc.AddItem(new MenuItem("useAntiGapCloser", "Use Anti-GapCloser", true).SetValue(true));
             championMenu.AddSubMenu(misc);

@@ -53,9 +53,9 @@ namespace Kor_AIO
                 a.Dispose();
             }
 
-            Game.OnGameUpdate += Orbwalker_Setting;
-            Game.OnGameUpdate += Game_Utility;
-            Game.OnGameUpdate += Game_OnGameUpdate;
+            Game.OnUpdate += Orbwalker_Setting;
+            Game.OnUpdate += Game_Utility;
+            Game.OnUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Drawing_OnDraw;
             Drawing.OnDraw += Drawing_ForRender;
             Drawing.OnEndScene += Drawing_OnDrawEndSence;
@@ -65,8 +65,6 @@ namespace Kor_AIO
             GameObject.OnCreate += GameObject_OnCreate;
             GameObject.OnDelete += GameObject_OnDelete;
             Obj_AI_Base.OnProcessSpellCast += Obj_AI_Base_OnProcessSpellCast;
-            Game.OnGameSendPacket += Game_OnSendPacket;
-            Game.OnGameProcessPacket += Game_OnGameProcessPacket;
             Orbwalking.AfterAttack += Orbwalking_AfterAttack;
         }
 

@@ -17,7 +17,7 @@ namespace Kor_AIO.Utilities
 
             _menu = config;
 
-            Game.OnGameUpdate += GameOnOnGameUpdate;
+            Game.OnUpdate += GameOnOnGameUpdate;
         }
 
         private static void GameOnOnGameUpdate(EventArgs args)
